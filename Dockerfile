@@ -11,6 +11,6 @@ RUN R -e "install.packages('data.table', dependencies=T)"
 RUN R -e "install.packages('readr', dependencies=T)"
 RUN R -e "install.packages('rjson', dependencies=T)"
 
-COPY logreg.R /home/modellingLogistic/logreg.R
+COPY train.R /home/modellingLogistic/train.R
 
-CMD R -e "source('/home/modellingLogistic/logreg.R')"
+CMD R -e "source('/home/modellingLogistic/train.R')"

@@ -41,6 +41,7 @@ vignettes/*.pdf
 *.Rproj
 
 /data/
+/data_try/
 
 *.DS_Store
 
