@@ -37,3 +37,11 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+*.Rproj
+
+/data/
+
+*.DS_Store
+
+*playground.Rmd
