@@ -1,4 +1,5 @@
-# Automating Logistic Regression
+# Automating Logistic Regression   
+
 * The idea is to have a logistic regression run in a container and save the model back to the attached folder.   
 * When running the container a volume needs to be attached which contains the csv files and the data schema.    
 
@@ -17,7 +18,7 @@ should have your files with the following pattern
 2.  download the image from my dockerhub 
 
 ```
-docker pull oyogo/logistics
+docker pull oyogo/logistic
 
 ```
 
@@ -34,7 +35,10 @@ docker run -it --rm -p 3838:3838 -v "/path/to/your/data":"/home/modellingLogisti
 ```
 
 Once you've run that, the container runs the model and saves it inside the data folder with the name : *model.rds*   
+one more thing :  
+we now have a prediction script which uses the test data to predict and save the output as predictions.csv inside the data folder.   
 
+Note: I'll have separate folders for the input and output 
 
-Next I want to create an API for prediction/inference then see how to link the two (container and API) perhaps they could all run in a container.   
+Next I want to create an API for prediction/inference then see how to link the two (container and API), perhaps they could all run in a container.   
 

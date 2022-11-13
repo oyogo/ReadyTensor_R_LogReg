@@ -12,5 +12,8 @@ RUN R -e "install.packages('readr', dependencies=T)"
 RUN R -e "install.packages('rjson', dependencies=T)"
 
 COPY train.R /home/modellingLogistic/train.R
+COPY testing.R /home/modellingLogistic/testing.R
 
 CMD R -e "source('/home/modellingLogistic/train.R')"
+
+CMD R -e "source('/home/modellingLogistic/testing.R')"
