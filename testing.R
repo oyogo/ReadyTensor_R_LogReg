@@ -10,7 +10,7 @@ testdata <- fread(paste0("./data/",fname_test))
 tdataschema <- fromJSON(file = paste0("./data/",fname_schema))
 
 # get the response variable and store it as a character 
-test_resvar <- tdataschema$inputDatasets$binaryClassificationBaseMainInput$targetField
+#test_resvar <- tdataschema$inputDatasets$binaryClassificationBaseMainInput$targetField
 
 # some of the column names do not follow r-naming convention : they have special characters which must be changed
 names(testdata) <- gsub("%","x",names(testdata))
@@ -19,7 +19,7 @@ names(testdata) <- gsub("%","x",names(testdata))
 # get the field name 
 idfieldname <- tdataschema$inputDatasets$binaryClassificationBaseMainInput$idField
 idfieldname <- as.symbol(idfieldname)
-yvar <- as.symbol(test_resvar)
+#yvar <- as.symbol(test_resvar)
 testdata <- testdata %>% dplyr::select(-all_of(idfieldname))
 #testdata <- testdata %>% dplyr::select(-all_of(yvar))
 
@@ -27,7 +27,7 @@ reg_logistic <- readRDS("./data/model.rds")
 
 testing <- function(df)
 {
-  respvar <- df %>% dplyr::select(all_of(yvar))
+  #respvar <- df %>% dplyr::select(all_of(yvar))
   predicted <-  predict(reg_logistic, df, type="response")
   predicted <- predicted %>% as.data.frame()
   names(predicted) <- "probabilities"
