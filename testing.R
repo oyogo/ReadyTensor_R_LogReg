@@ -1,5 +1,4 @@
 library(dplyr) 
-#library(pROC)
 library(data.table)
 library(rjson)
 
@@ -9,36 +8,36 @@ testdata <- fread(paste0("./data/",fname_test))
 
 tdataschema <- fromJSON(file = paste0("./data/",fname_schema))
 
-# get the response variable and store it as a character 
-#test_resvar <- tdataschema$inputDatasets$binaryClassificationBaseMainInput$targetField
-
 # some of the column names do not follow r-naming convention : they have special characters which must be changed
 names(testdata) <- gsub("%","x",names(testdata))
 
-# drop the id field 
-# get the field name 
+# select the ID column into a variable and drop it from the test data. 
+# the variable created will be bound to the predicted probabilities 
+
 idfieldname <- tdataschema$inputDatasets$binaryClassificationBaseMainInput$idField
 idfieldname <- as.symbol(idfieldname)
-#yvar <- as.symbol(test_resvar)
+idField <- testdata %>% dplyr::select(all_of(idfieldname))
 testdata <- testdata %>% dplyr::select(-all_of(idfieldname))
-#testdata <- testdata %>% dplyr::select(-all_of(yvar))
 
+
+# load the trained model 
 reg_logistic <- readRDS("./data/model.rds")
 
 testing <- function(df)
 {
-  #respvar <- df %>% dplyr::select(all_of(yvar))
-  predicted <-  predict(reg_logistic, df, type="response")
+ 
+  
+  predicted <-  predict(reg_logistic, newdata=df, type="response")
   predicted <- predicted %>% as.data.frame()
   names(predicted) <- "probabilities"
   predicted <- predicted %>% dplyr::mutate(predictions = case_when(
     probabilities < 0.5 ~ 0,
     probabilities >= 0.5 ~ 1
   ))
- 
-  fwrite(predicted,"./data/predictions.csv")
-  #aucc <- auc(respvar, predicted)
-  #return(aucc)
+  # add the ID colum to the predictions
+  glm_pred = cbind(idField, predicted)
+  fwrite(glm_pred,"./data/glm_predictions.csv")
+
 }
 
 testing(df=testdata)

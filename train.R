@@ -1,7 +1,7 @@
 library(dplyr) # for data munging 
-library(rjson)
-library(data.table)
-library(readr)
+library(rjson) # for handling json data 
+library(data.table) # faster in munging data
+#library(readr)
 
 # use pattern to read data : this is to make the model generic 
 fname_train <- dir(path = "./data/", pattern = "\\_train.csv$")
