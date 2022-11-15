@@ -6,7 +6,7 @@
 To try this locally on your pc see the steps below: 
 
 1. Your data folder   
-Note: ensure you name it : *data*      
+Note: ensure you name it : *ml_vol*      
 should have your files with the following pattern     
 ```
 *_train.csv
@@ -27,10 +27,10 @@ docker pull oyogo/logistic
 note: 
  * oyogo/logistic is the docker image name as pulled from dockerhub   
  * ensure port 3838 is not in use     
- * this path _/home/modellingLogistic/data_ should be as it for that's how its predefined inside the container.   
+ * this path _/home/modellingLogistic/ml_vol_ should be as it for that's how its predefined inside the container.   
  
 ```
-docker run -it --rm -p 3838:3838 -v "/path/to/your/data":"/home/modellingLogistic/data"  oyogo/logistic
+docker run -it --rm -p 3838:3838 -v "/path/to/your/ml_vol":"/home/modellingLogistic/ml_vol"  oyogo/logistic
 
 ```
 
