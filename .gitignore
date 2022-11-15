@@ -42,6 +42,7 @@ vignettes/*.pdf
 
 /data/
 /data_try/
+/ml_vol/
 
 *.DS_Store
 

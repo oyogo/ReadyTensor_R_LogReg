@@ -2,11 +2,11 @@ library(dplyr)
 library(data.table)
 library(rjson)
 
-fname_test <- dir(path = "./data/", pattern = "\\_test.csv$")
-fname_schema <- dir(path = "./data/", pattern = "\\_schema.json$")
-testdata <- fread(paste0("./data/",fname_test))
+fname_test <- dir(path = "./ml_vol/inputs/data/testing/", pattern = "\\_test.csv$")
+fname_schema <- dir(path = "./ml_vol/inputs/data_config/", pattern = "\\_schema.json$")
+testdata <- fread(paste0("./ml_vol/inputs/data/testing/",fname_test))
 
-tdataschema <- fromJSON(file = paste0("./data/",fname_schema))
+tdataschema <- fromJSON(file = paste0("./ml_vol/inputs/data_config/",fname_schema))
 
 # some of the column names do not follow r-naming convention : they have special characters which must be changed
 names(testdata) <- gsub("%","x",names(testdata))
@@ -21,12 +21,10 @@ testdata <- testdata %>% dplyr::select(-all_of(idfieldname))
 
 
 # load the trained model 
-reg_logistic <- readRDS("./data/model.rds")
+reg_logistic <- readRDS("./ml_vol/model/artifacts/model.rds")
 
 testing <- function(df)
 {
- 
-  
   predicted <-  predict(reg_logistic, newdata=df, type="response")
   predicted <- predicted %>% as.data.frame()
   names(predicted) <- "probabilities"
@@ -36,7 +34,7 @@ testing <- function(df)
   ))
   # add the ID colum to the predictions
   glm_pred = cbind(idField, predicted)
-  fwrite(glm_pred,"./data/glm_predictions.csv")
+  fwrite(glm_pred,"./ml_vol/outputs/testing_outputs/test_predictions.csv")
 
 }
 
