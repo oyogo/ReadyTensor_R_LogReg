@@ -1,4 +1,4 @@
-#library(dplyr) 
+
 library(rjson)
 library(data.table)
 
@@ -15,39 +15,33 @@ names(testdata) <- gsub("%","x",names(testdata))
 # the variable created will be bound to the predicted probabilities 
 
 idfieldname <- tdataschema$inputDatasets$binaryClassificationBaseMainInput$idField
+
+# save the idField into a vector. We'll bind this to the prediction dataframe to ensure the predictions are returned in the same order of
+# of the records in the original dataframe. 
 idfieldname <- as.symbol(idfieldname)
-# idField <- testdata %>% dplyr::select(all_of(idfieldname))
-# testdata <- testdata %>% dplyr::select(-all_of(idfieldname))
-
 idField <- testdata[,c(eval(idfieldname))]
-testdata <- testdata[,idfieldname:=NULL]
 
+# drop the ID column from the dataset, we don't need it for testing. 
+testdata <- subset(testdata,select = -c(eval(as.name(paste0(idfieldname)))))
 
-# load the trained model 
+# load the trained model
 reg_logistic <- readRDS("./ml_vol/model/artifacts/model.rds")
 
 #* @get /predict
-function()
+tt <- function()
 {
   df <- testdata
   predicted <-  predict(reg_logistic, newdata=df, type="response")
   predicted <- predicted %>% data.table()
   names(predicted) <- "probabilities"
-  
-  
-
-  #predicted$probabilities[data$num1 == 1] <- 99
+ 
+  # where the probabilities returned are <0.5 put 0 otherwise 1. 
   predicted <- predicted[, predictions:=0][probabilities<0.5, predictions:=1]
-  # predicted <- predicted %>% dplyr::mutate(predictions = case_when(
-  #   probabilities < 0.5 ~ 0,
-  #   probabilities >= 0.5 ~ 1
-  # ))
+
   # add the ID colum to the predictions
   glm_pred = cbind(idField, predicted)
-  write.csv(glm_pred,"./ml_vol/outputs/testing_outputs/test_predictions.csv")
+  write.csv(glm_pred,"./ml_vol/outputs/testing_outputs/test_predictions3.csv")
 
 }
 
-#testing(df=testdata)
-
-
+tt()

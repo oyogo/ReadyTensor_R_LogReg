@@ -23,10 +23,6 @@ COPY plumberscript.R /modellingLogistic/plumberscript.R
 
 # The two scripts (train.R and plumber.R) need to be run in succession. plumber.R should be run only after 
 # training.R is successful. To achieve that we use && 
-#CMD R -e "source('train.R')" #&&
 EXPOSE 8000 
 
 CMD R -e "source('train.R')" && R -e "source('plumberscript.R')"
-#CMD R -e "source('plumberscript.R')"
-#CMD R -e "plumber::plumb('/home/modellingLogistic/testing.R')$run(host = 0.0.0.0, port = 8000)"
-#ENTRYPOINT ["R", "-e", "plumber::plumb('/home/modellingLogistic/testing.R')$run(host = 0.0.0.0, port = 8000)"]"
