@@ -1,6 +1,6 @@
-library(dplyr) # for data munging 
+#library(dplyr) # for data munging 
+library(data.table)
 library(rjson) # for handling json data 
-library(data.table) # faster in munging data
 
 # use pattern to read data : this is to make the model generic 
 fname_train <- dir(path = "./ml_vol/inputs/data/training/", pattern = "\\_train.csv$")
@@ -22,13 +22,18 @@ names(genericdata) <- gsub("%","x",names(genericdata))
 ## get the field name and store it as a variable
 idfieldname <- dataschema$inputDatasets$binaryClassificationBaseMainInput$idField
 idfieldname <- as.symbol(idfieldname)
+
 ## drop it from the data
-genericdata <- genericdata %>% dplyr::select(-all_of(idfieldname))
+genericdata <- genericdata[,idfieldname:=NULL]
+#genericdata <- genericdata %>% dplyr::select(-all_of(idfieldname))
+
 
 # function to train the model  and save it back into the mounted volume
 lets_train <- function(dat,rvar){
  
-  ndat <- dplyr::select(dat, -all_of(rvar))
+  #ndat <- dplyr::select(dat, -all_of(rvar))
+  resdrop <- eval(as.symbol(rvar))
+  ndat <- dat[,resdrop:=NULL]
   indvars <- names(ndat)
 
   theModel <- glm(reformulate(termlabels = indvars, response = rvar),family=binomial(link='logit'), data = dat)

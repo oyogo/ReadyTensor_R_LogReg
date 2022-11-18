@@ -1,21 +1,32 @@
-FROM rocker/r-ver:4.2.1
+FROM rocker/r-ver:4.1.0
+#FROM rstudio/plumber
 
-USER root
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
+  git-core \
+  libssl-dev \
+  libcurl4-gnutls-dev \
+  curl \
+  libsodium-dev \
+  libxml2-dev 
 
-WORKDIR /home/modellingLogistic
 
-RUN apt-get update -y && apt-get install apt-utils libudunits2-dev libproj-dev lbzip2  -y --no-install-recommends 
-
-RUN R -e "install.packages('dplyr', dependencies=T)"
 RUN R -e "install.packages('data.table', dependencies=T)"
-RUN R -e "install.packages('readr', dependencies=T)"
 RUN R -e "install.packages('rjson', dependencies=T)"
+RUN R -e "install.packages('plumber', dependencies=T)"
 
-COPY train.R /home/modellingLogistic/train.R
-COPY testing.R /home/modellingLogistic/testing.R
+RUN mkdir -p ~/modellingLogistic
+WORKDIR /modellingLogistic
 
-# The two scripts (train.R and testing.R) need to be run in succession. testing.R should be run only after 
+COPY train.R /modellingLogistic/train.R
+COPY testing.R /modellingLogistic/testing.R
+COPY plumberscript.R /modellingLogistic/plumberscript.R
+
+# The two scripts (train.R and plumber.R) need to be run in succession. plumber.R should be run only after 
 # training.R is successful. To achieve that we use && 
-CMD R -e "source('/home/modellingLogistic/train.R')" && R -e "source('/home/modellingLogistic/testing.R')"
+#CMD R -e "source('train.R')" #&&
+EXPOSE 8000 
 
-#CMD R -e "source('/home/modellingLogistic/testing.R')"
+CMD R -e "source('train.R')" && R -e "source('plumberscript.R')"
+#CMD R -e "source('plumberscript.R')"
+#CMD R -e "plumber::plumb('/home/modellingLogistic/testing.R')$run(host = 0.0.0.0, port = 8000)"
+#ENTRYPOINT ["R", "-e", "plumber::plumb('/home/modellingLogistic/testing.R')$run(host = 0.0.0.0, port = 8000)"]"
