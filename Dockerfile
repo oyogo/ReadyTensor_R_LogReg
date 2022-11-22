@@ -17,12 +17,12 @@ RUN R -e "install.packages('plumber', dependencies=T)"
 RUN mkdir -p ~/modellingLogistic
 WORKDIR /modellingLogistic
 
-COPY train.R /modellingLogistic/train.R
+COPY train /modellingLogistic/train
 COPY testing.R /modellingLogistic/testing.R
-COPY plumberscript.R /modellingLogistic/plumberscript.R
+COPY test /modellingLogistic/test
 
-# The two scripts (train.R and plumber.R) need to be run in succession. plumber.R should be run only after 
-# training.R is successful. To achieve that we use && 
-EXPOSE 8000 
+RUN chmod +x train &&\
+    chmod +x test
 
-CMD R -e "source('train.R')" && R -e "source('plumberscript.R')"
+
+#CMD R -e "source('train.R')" && R -e "source('plumberscript.R')"

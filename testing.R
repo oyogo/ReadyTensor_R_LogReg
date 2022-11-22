@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 
 library(rjson)
 library(data.table)
@@ -28,11 +29,11 @@ testdata <- subset(testdata,select = -c(eval(as.name(paste0(idfieldname)))))
 reg_logistic <- readRDS("./ml_vol/model/artifacts/model.rds")
 
 #* @get /predict
-tt <- function()
+function()
 {
   df <- testdata
   predicted <-  predict(reg_logistic, newdata=df, type="response")
-  predicted <- predicted %>% data.table()
+  predicted <- data.table(predicted)
   names(predicted) <- "probabilities"
  
   # where the probabilities returned are <0.5 put 0 otherwise 1. 
@@ -40,8 +41,9 @@ tt <- function()
 
   # add the ID colum to the predictions
   glm_pred = cbind(idField, predicted)
-  write.csv(glm_pred,"./ml_vol/outputs/testing_outputs/test_predictions3.csv")
+  glm_pred <- dcast(glm_pred, idField ~ predictions, value.var = "predictions")
+  colnames(glm_pred)[2:3]<-paste("class",colnames(glm_pred)[2:3],sep="_")
+  write.csv(glm_pred,"./ml_vol/outputs/testing_outputs/test_predictions.csv")
 
 }
 
-tt()

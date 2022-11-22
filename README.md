@@ -30,22 +30,48 @@ note:
  * this path _/home/modellingLogistic/ml_vol_ should be as it for that's how its predefined inside the container.   
  
 ```
-docker run -it --rm -p 8000:8000 -v "/path/to/your/ml_vol":"/home/modellingLogistic/ml_vol"  oyogo/logistic
+docker run -dit --rm -p 8000:8000 -v "/path/to/your/ml_vol":"/home/modellingLogistic/ml_vol"  oyogo/logistic
 
 ```
 
-Once you've run that, the container runs the model and saves it inside the data folder with the name : *model.rds*   
-one more thing :  
-we now have a prediction script which uses the test data to predict and save the output as predictions.csv inside the data folder.   
-
-We now have a inference API using plumber. so what happens when you run the container is the training script is run, model gets saved in the artifacts folder, once that is successful the plumber script gets run and then the the API interface is made available on port 8000.  You should have the following output on the terminal when you run the container.  
+4. Get the name of the container  
 
 ```
-> source('plumberscript.R')
+docker ps 
+
+```
+When you run the above command you'll get an output as below: 
+
+```
+CONTAINER ID   IMAGE      COMMAND   CREATED         STATUS         PORTS                    NAMES
+9071340878d3   logistic   "R"       3 seconds ago   Up 2 seconds   0.0.0.0:8000->8000/tcp   optimistic_franklin
+
+```
+
+On the output above, pick the name of the container right under *NAMES*. For this case its _optimistic_franklin_   
+Ensure you substitute the container name accordingly. 
+
+5. Execute the train/test scripts in the container 
+Using the container name, we can now execute the r scripts in the container as below:  
+
+```
+docker exec -it optimistic_franklin ./train /bash/sh
+
+```
+To run the test script substitute train with test.  
+
+
+When you execute the train script, the container runs the model and saves it inside the */ml_vol/model/artifacts/* folder with the name : *model.rds*   
+  
+
+Running the test script we'll have an output as below: 
+
+```
 Running plumber API at http://0.0.0.0:8000
 Running swagger Docs at http://127.0.0.1:8000/__docs__/
 
 ```
+
 Take the _http://127.0.0.1:8000/__docs__/_ and post it on your browser, you should be able to see the swagger ui. Click on predict, then try_out and then execute. 
 You can now check the testing_output folder inside the outputs folder of ml_vol. You should be able to see a test_predictions.csv file inside it.  
 
