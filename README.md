@@ -76,3 +76,39 @@ Take the _http://127.0.0.1:8000/__docs__/_ and post it on your browser, you shou
 You can now check the testing_output folder inside the outputs folder of ml_vol. You should be able to see a test_predictions.csv file inside it.  
 
 
+*Alternatively*       
+If you want to use docker compose:    
+
+1. Edit the docker compose yml file below accordingly(path to your data directory). Put it in the project directory. 
+```
+version: "3"
+services:
+  logimodel:
+    build: .
+    volumes:
+      - /path/to/data/dir/ml_vol:/modellingLogistic/ml_vol
+    ports:
+      - 8000:8000
+    working_dir: /modellingLogistic
+    command: tail -f /dev/null # keep the container running
+
+```
+
+2. Navigate to your project directory and run the following command.   
+
+The command below starts your service. (the tag _-d_ is for running it in detached mode.)   
+
+```
+docker compose up -d
+
+``` 
+
+3. Running your script inside the container.    
+
+```
+docker compose exec -it logimodel ./train
+
+```
+Note: logimodel is the name of the service in docker compose yml.    
+
+To test the model you'll just replace ./train with ./test   

@@ -15,7 +15,7 @@ RUN R -e "install.packages('rjson', dependencies=T)"
 RUN R -e "install.packages('plumber', dependencies=T)"
 
 RUN mkdir -p ~/modellingLogistic
-WORKDIR /modellingLogistic
+WORKDIR /modellingLogistic/
 
 COPY train /modellingLogistic/train
 COPY testing.R /modellingLogistic/testing.R
