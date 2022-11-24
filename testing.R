@@ -3,9 +3,9 @@
 library(rjson)
 library(data.table)
 
-fname_test <- dir(path = "./ml_vol/inputs/data/testing/", pattern = "\\_test.csv$")
+fname_test <- dir(path = "./ml_vol/inputs/data/testing/binaryClassificationBaseMainInput/", pattern = "\\_test.csv$")
 fname_schema <- dir(path = "./ml_vol/inputs/data_config/", pattern = "\\_schema.json$")
-testdata <- fread(paste0("./ml_vol/inputs/data/testing/",fname_test))
+testdata <- fread(paste0("./ml_vol/inputs/data/testing/binaryClassificationBaseMainInput/",fname_test))
 
 tdataschema <- fromJSON(file = paste0("./ml_vol/inputs/data_config/",fname_schema))
 
