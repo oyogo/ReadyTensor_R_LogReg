@@ -35,8 +35,7 @@ function()
   predicted <-  predict(reg_logistic, newdata=df, type="response")
   predicted <- data.table(predicted)
   names(predicted) <- "probabilities"
- 
-  # where the probabilities returned are <0.5 put 0 otherwise 1. 
+  # where the probabilities returned are <0.5 put 0 otherwise 1.
   predicted <- predicted[, predictions:=0][probabilities<0.5, predictions:=1]
 
   # add the ID colum to the predictions

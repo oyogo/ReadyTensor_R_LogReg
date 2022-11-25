@@ -18,6 +18,7 @@ RUN mkdir -p ~/modellingLogistic
 WORKDIR /modellingLogistic/
 
 COPY train /modellingLogistic/train
+COPY preprocessor.R /modellingLogistic/preprocessor.R
 COPY testing.R /modellingLogistic/testing.R
 COPY test /modellingLogistic/test
 
