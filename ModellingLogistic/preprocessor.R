@@ -21,7 +21,7 @@ preprocessing <- function(){
   # get the response variable and store it as a string to a variable
   varr <- dataschema$inputDatasets$binaryClassificationBaseMainInput$targetField
   # introducing na value to check if the pipeline is working fine. 
-  genericdata <- genericdata[id==529,word_freq_make:="NA"] 
+  #genericdata <- genericdata[id==529,word_freq_make:="NA"] 
 
 # drop the id field 
 ## get the field name and store it as a variable
