@@ -21,7 +21,7 @@ lets_train <- function(dat,rvar,predictors){
   theModel <- glm(reformulate(termlabels = indvars, response = rvar),family=binomial(link='logit'), data = dat)
 
   # save the model into the artifacts folder in the attached volume.
-  saveRDS(theModel, "./ml_vol/model/artifacts/model.rds")
+  saveRDS(theModel, "./../ml_vol/model/artifacts/model.rds")
 
 }
 

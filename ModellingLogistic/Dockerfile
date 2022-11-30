@@ -14,13 +14,17 @@ RUN R -e "install.packages('data.table', dependencies=T)"
 RUN R -e "install.packages('rjson', dependencies=T)"
 RUN R -e "install.packages('plumber', dependencies=T)"
 
-RUN mkdir -p ~/modellingLogistic
-WORKDIR /modellingLogistic/
+#RUN mkdir -p ~/modellingLogistic
+#WORKDIR /modellingLogistic/
 
-COPY train /modellingLogistic/train
-COPY preprocessor.R /modellingLogistic/preprocessor.R
-COPY testing.R /modellingLogistic/testing.R
-COPY test /modellingLogistic/test
+#COPY train /modellingLogistic/train
+#COPY preprocessor.R /modellingLogistic/preprocessor.R
+#COPY testing.R /modellingLogistic/testing.R
+#COPY test /modellingLogistic/test
+COPY ./../ModellingLogistic /opt/ModellingLogistic
+WORKDIR /opt/ModellingLogistic
+
+
 
 RUN chmod +x train &&\
     chmod +x test

@@ -9,14 +9,14 @@ library(rjson) # for handling json data
 preprocessing <- function(){ 
   
   # use pattern to read data : this is to make the model generic 
-  fname_train <- dir(path = "./ml_vol/inputs/data/training/binaryClassificationBaseMainInput/", pattern = "\\_train.csv$")
-  fname_schema <- dir(path = "./ml_vol/inputs/data_config/", pattern = "\\_schema.json$")
+  fname_train <- dir(path = "./../ml_vol/inputs/data/training/binaryClassificationBaseMainInput/", pattern = "\\_train.csv$")
+  fname_schema <- dir(path = "./../ml_vol/inputs/data_config/", pattern = "\\_schema.json$")
   
   # import the training data 
-  genericdata <- fread(paste0("./ml_vol/inputs/data/training/binaryClassificationBaseMainInput/",fname_train))
+  genericdata <- fread(paste0("./../ml_vol/inputs/data/training/binaryClassificationBaseMainInput/",fname_train))
   names(genericdata) <- gsub("%","x",names(genericdata))
   # read in the schema so that we extract the response variable
-  dataschema <- fromJSON(file = paste0("./ml_vol/inputs/data_config/",fname_schema))
+  dataschema <- fromJSON(file = paste0("./../ml_vol/inputs/data_config/",fname_schema))
   
   # get the response variable and store it as a string to a variable
   varr <- dataschema$inputDatasets$binaryClassificationBaseMainInput$targetField

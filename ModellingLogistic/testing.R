@@ -3,11 +3,11 @@
 library(rjson)
 library(data.table)
 
-fname_test <- dir(path = "./ml_vol/inputs/data/testing/binaryClassificationBaseMainInput/", pattern = "\\_test.csv$")
-fname_schema <- dir(path = "./ml_vol/inputs/data_config/", pattern = "\\_schema.json$")
-testdata <- fread(paste0("./ml_vol/inputs/data/testing/binaryClassificationBaseMainInput/",fname_test))
+fname_test <- dir(path = "./../ml_vol/inputs/data/testing/binaryClassificationBaseMainInput/", pattern = "\\_test.csv$")
+fname_schema <- dir(path = "./../ml_vol/inputs/data_config/", pattern = "\\_schema.json$")
+testdata <- fread(paste0("./../ml_vol/inputs/data/testing/binaryClassificationBaseMainInput/",fname_test))
 
-tdataschema <- fromJSON(file = paste0("./ml_vol/inputs/data_config/",fname_schema))
+tdataschema <- fromJSON(file = paste0("./../ml_vol/inputs/data_config/",fname_schema))
 
 # some of the column names do not follow r-naming convention : they have special characters which must be changed
 names(testdata) <- gsub("%","x",names(testdata))
@@ -26,7 +26,7 @@ idField <- testdata[,c(eval(idfieldname))]
 testdata <- subset(testdata,select = -c(eval(as.name(paste0(idfieldname)))))
 
 # load the trained model
-reg_logistic <- readRDS("./ml_vol/model/artifacts/model.rds")
+reg_logistic <- readRDS("./../ml_vol/model/artifacts/model.rds")
 
 #* @get /predict
 function()
@@ -42,7 +42,7 @@ function()
   glm_pred = cbind(idField, predicted)
   glm_pred <- dcast(glm_pred, idField ~ predictions, value.var = "predictions")
   colnames(glm_pred)[2:3]<-paste("class",colnames(glm_pred)[2:3],sep="_")
-  write.csv(glm_pred,"./ml_vol/outputs/testing_outputs/test_predictions.csv")
+  write.csv(glm_pred,"./../ml_vol/outputs/testing_outputs/test_predictions.csv")
 
 }
 
