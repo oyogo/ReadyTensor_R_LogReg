@@ -3,7 +3,7 @@ services:
   logimodel:
     build: .
     volumes:
-      - ./../ml_vol:/opt/ml_vol
+      - ./ml_vol:/opt/ml_vol
     ports:
       - 8000:8000
     working_dir: /opt/ModellingLogistic

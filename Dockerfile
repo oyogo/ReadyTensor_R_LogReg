@@ -21,10 +21,10 @@ RUN R -e "install.packages('plumber', dependencies=T)"
 #COPY preprocessor.R /modellingLogistic/preprocessor.R
 #COPY testing.R /modellingLogistic/testing.R
 #COPY test /modellingLogistic/test
-COPY ./../ModellingLogistic /opt/ModellingLogistic
+COPY ./ModellingLogistic /opt/ModellingLogistic
 WORKDIR /opt/ModellingLogistic
 
-
+ENV PATH="opt/ModellingLogistic:${PATH}"
 
 RUN chmod +x train &&\
     chmod +x test
