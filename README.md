@@ -76,6 +76,7 @@ Take the _http://127.0.0.1:8000/__docs__/_ and post it on your browser, you shou
 You can now check the testing_output folder inside the outputs folder of ml_vol. You should be able to see a test_predictions.csv file inside it.  
 
 
+
 *Alternatively*       
 If you want to use docker compose:    
 
@@ -112,3 +113,19 @@ docker compose exec -it logimodel ./train
 Note: logimodel is the name of the service in docker compose yml.    
 
 To test the model you'll just replace ./train with ./test   
+
+4. Starting a web server 
+
+```
+docker compose exec -it logimodel ./serve 
+```
+
+Once the plumber API starts you can now open another terminal and paste the following: 
+
+```
+curl localhost:8000/getprediction --header "Content-Type: application/json" \
+  --request POST \
+  --data @/path/to/your/data/testjsn.json
+```
+
+_*Note: ensure you change the path to data accordingly!*_

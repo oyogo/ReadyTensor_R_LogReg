@@ -27,7 +27,8 @@ WORKDIR /opt/ModellingLogistic
 ENV PATH="opt/ModellingLogistic:${PATH}"
 
 RUN chmod +x train &&\
-    chmod +x test
+    chmod +x test &&\
+    chmod +x serve
 
 
 #CMD R -e "source('train.R')" && R -e "source('plumberscript.R')"
