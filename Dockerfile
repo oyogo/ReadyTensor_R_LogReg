@@ -13,6 +13,7 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
 RUN R -e "install.packages('data.table', dependencies=T)"
 RUN R -e "install.packages('rjson', dependencies=T)"
 RUN R -e "install.packages('plumber', dependencies=T)"
+RUN R -e "install.packages('jsonlite', dependencies=T)"
 
 #RUN mkdir -p ~/modellingLogistic
 #WORKDIR /modellingLogistic/
