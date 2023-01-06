@@ -47,6 +47,7 @@ num_vars <- predictor_fields[dataTypes=="NUMERIC",.(fieldNames)]
 cat_vars <- predictor_fields[dataTypes=="CATEGORICAL",.(fieldNames)]
 
 v <- num_vars$fieldNames
+
 # loop through the numeric columns and replace na values with mean of the same column in which the na appears.
 for (coll in v){
 
@@ -58,19 +59,19 @@ for (coll in v){
 
 }
 
-# ## replace missing values in categorical fields with mode 
-#   # List the distinct / unique values
-#   distinct_values <- unique(cat_vars)
-#   # Count the occurrence of each distinct value
-#   distinct_tabulate <- tabulate(match(cat_vars, distinct_values))
-#   for (cat_coll in cat_vars){
-#   genericdata <-  genericdata[, (cat_coll) := lapply(cat_coll, function(x) {
-#     x <- get(x)
-#     # Replace missing value with the value with the highest occurrence (mode)
-#     x[is.na(x)] <- distinct_values[which.max(distinct_tabulate)]
-#     
-#   })]
-# }
+## replace missing values in categorical fields with mode
+  # List the distinct / unique values
+  distinct_values <- unique(cat_vars)
+  # Count the occurrence of each distinct value
+  distinct_tabulate <- tabulate(match(cat_vars, distinct_values))
+  for (cat_coll in cat_vars){
+  genericdata <-  genericdata[, (cat_coll) := lapply(cat_coll, function(x) {
+    x <- get(x)
+    # Replace missing value with the value with the highest occurrence (mode)
+    x[is.na(x)] <- distinct_values[which.max(distinct_tabulate)]
+
+  })]
+}
 
 return(list(genericdata,varr,predictor_fields))
 }

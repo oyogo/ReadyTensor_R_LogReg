@@ -28,7 +28,7 @@ WORKDIR /opt/ModellingLogistic
 ENV PATH="opt/ModellingLogistic:${PATH}"
 
 RUN chmod +x train &&\
-    chmod +x test &&\
+    chmod +x predict &&\
     chmod +x serve
 
 

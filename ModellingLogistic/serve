@@ -2,4 +2,4 @@
 
 library(plumber)
 r <- pr("serving.R")
-r%>%pr_run(host="0.0.0.0",port=8000)
+r%>%pr_run(host="0.0.0.0",port=8080)

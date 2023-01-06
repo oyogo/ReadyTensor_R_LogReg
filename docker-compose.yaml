@@ -5,7 +5,7 @@ services:
     volumes:
       - ./ml_vol:/opt/ml_vol
     ports:
-      - 8000:8000
+      - 8080:8080
     working_dir: /opt/ModellingLogistic
     command: tail -f /dev/null # keep the container running
     

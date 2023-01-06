@@ -35,13 +35,15 @@ testing <- function()
   predicted <- data.table(predicted)
   names(predicted) <- "probabilities"
   # where the probabilities returned are <0.5 put 0 otherwise 1.
-  predicted <- predicted[, predictions:=0][probabilities<0.5, predictions:=1]
+  predicted <- predicted[, predictions:=0][probabilities>0.5, predictions:=1]
 
   # add the ID colum to the predictions
   glm_pred = cbind(idField, predicted)
-  glm_pred <- dcast(glm_pred, idField ~ predictions, value.var = "predictions")
-  colnames(glm_pred)[2:3]<-paste("class",colnames(glm_pred)[2:3],sep="_")
-  write.csv(glm_pred,"./../ml_vol/outputs/testing_outputs/test_predictions.csv")
+  rownames(glm_pred) <- NULL
+  #glm_pred <- dcast(glm_pred, idField ~ predictions, value.var = "predictions")
+  #colnames(glm_pred)[2:3]<-paste("class",colnames(glm_pred)[2:3],sep="_")
+  write.csv(glm_pred,"./../ml_vol/outputs/testing_outputs/testpredictions.csv")
+  #return(glm_pred)
 
 }
 
