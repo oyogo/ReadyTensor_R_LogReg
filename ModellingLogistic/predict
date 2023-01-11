@@ -2,6 +2,7 @@
 
 library(rjson)
 library(data.table)
+library(tidyr)
 
 fname_test <- dir(path = "./../ml_vol/inputs/data/testing/binaryClassificationBaseMainInput/", pattern = "\\_test.csv$")
 fname_schema <- dir(path = "./../ml_vol/inputs/data_config/", pattern = "\\_schema.json$")
@@ -23,27 +24,43 @@ idfieldname <- as.symbol(idfieldname)
 idField <- testdata[,c(eval(idfieldname))]
 
 # drop the ID column from the dataset, we don't need it for testing. 
-testdata <- subset(testdata,select = -c(eval(as.name(paste0(idfieldname)))))
+#testdata <- subset(testdata,select = -c(eval(as.name(paste0(idfieldname)))))
+
+source("preprocessor.R")
+#preprocessing()
+
+predictors <- preprocessing()[[3]]
+resvar <- as.name(paste0(preprocessing()[[2]]))
+
 
 # load the trained model
 reg_logistic <- readRDS("./../ml_vol/model/artifacts/model.rds")
 
-testing <- function()
+testing <- function(idx=idfieldname)
 {
   df <- testdata
-  predicted <-  predict(reg_logistic, newdata=df, type="response")
-  predicted <- data.table(predicted)
-  names(predicted) <- "probabilities"
+  #predicted <-  predict(reg_logistic, newdata=df, type="response")
+  #predicted <- data.table(predicted)
+  #names(predicted) <- "probabilities"
   # where the probabilities returned are <0.5 put 0 otherwise 1.
-  predicted <- predicted[, predictions:=0][probabilities>0.5, predictions:=1]
+  #predicted <- predicted[, predictions:=0][probabilities>0.5, predictions:=1]
 
   # add the ID colum to the predictions
-  glm_pred = cbind(idField, predicted)
-  rownames(glm_pred) <- NULL
-  #glm_pred <- dcast(glm_pred, idField ~ predictions, value.var = "predictions")
+  #glm_pred = cbind(idField, predicted)
+  #rownames(glm_pred) <- NULL
+  #glm_pred <- dcast(glm_pred, idField ~ predictions, value.var = "probabilities")
   #colnames(glm_pred)[2:3]<-paste("class",colnames(glm_pred)[2:3],sep="_")
-  write.csv(glm_pred,"./../ml_vol/outputs/testing_outputs/testpredictions.csv")
-  #return(glm_pred)
+  #write.csv(glm_pred,"./../ml_vol/outputs/testing_outputs/testpredictions.csv")
+  thepredictions <- cbind(df, predict(reg_logistic, newdata = df, type = "response"))
+  names(thepredictions)[names(thepredictions) == 'V2'] <-  "predictedprobs"
+  indvars <- as.vector(predictors$fieldNames)
+  thepredictions <- setDT(thepredictions)[, !indvars, with=FALSE]
+  #thepredictions <- dcast(thepredictions, eval(idfieldname) ~ eval(resvar), value.var = "predictedprobs")
+  thepredictions <- tidyr::pivot_wider(thepredictions,names_from=all_of(resvar),values_from="predictedprobs")
+  #colnames(thepredictions)[2:3]<-paste("class",colnames(thepredictions)[2:3],sep="_")
+  thepredictions <- setDT(thepredictions)[is.na(`1`),`1` := 1-`0`][is.na(`0`),`0` := 1-`1`]
+  #rownames(thepredictions) <- NULL
+  print(head(thepredictions), row.names=FALSE)
 
 }
 
