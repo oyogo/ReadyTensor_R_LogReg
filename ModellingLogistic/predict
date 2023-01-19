@@ -36,7 +36,7 @@ resvar <- as.name(paste0(preprocessing()[[2]]))
 # load the trained model
 reg_logistic <- readRDS("./../ml_vol/model/artifacts/model.rds")
 
-testing <- function(idx=idfieldname)
+testing <- function()
 {
   df <- testdata
   #predicted <-  predict(reg_logistic, newdata=df, type="response")
@@ -60,7 +60,8 @@ testing <- function(idx=idfieldname)
   #colnames(thepredictions)[2:3]<-paste("class",colnames(thepredictions)[2:3],sep="_")
   thepredictions <- setDT(thepredictions)[is.na(`1`),`1` := 1-`0`][is.na(`0`),`0` := 1-`1`]
   #rownames(thepredictions) <- NULL
-  print(head(thepredictions), row.names=FALSE)
+  #print(head(thepredictions), row.names=FALSE)
+  write.csv(thepredictions,"./../ml_vol/outputs/testing_outputs/testpredictions.csv")
 
 }
 

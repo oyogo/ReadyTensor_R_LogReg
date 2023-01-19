@@ -8,6 +8,8 @@ varr <- preprocessing()[[2]]
 genericdata <- preprocessing()[[1]]
 predictors <- preprocessing()[[3]]
 
+sapply(lapply(genericdata, unique), length)
+
 # function to train the model  and save it back into the mounted volume
 lets_train <- function(dat,rvar,predictors){
 

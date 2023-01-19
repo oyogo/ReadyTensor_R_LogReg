@@ -5,6 +5,7 @@
 
 library(data.table) # Opted for this, 1. Because its really fast 2. dplyr conflicted with plumber
 library(rjson) # for handling json data
+library(missMethods)
 
 preprocessing <- function(){ 
   
@@ -46,6 +47,7 @@ num_vars <- predictor_fields[dataTypes=="NUMERIC",.(fieldNames)]
 # categorical variables
 cat_vars <- predictor_fields[dataTypes=="CATEGORICAL",.(fieldNames)]
 
+catcols <- as.vector(cat_vars$fieldNames)
 v <- num_vars$fieldNames
 
 # loop through the numeric columns and replace na values with mean of the same column in which the na appears.
@@ -59,21 +61,56 @@ for (coll in v){
 
 }
 
-## replace missing values in categorical fields with mode
-  # List the distinct / unique values
-  distinct_values <- unique(cat_vars)
-  # Count the occurrence of each distinct value
-  distinct_tabulate <- tabulate(match(cat_vars, distinct_values))
-  for (cat_coll in cat_vars){
-  genericdata <-  genericdata[, (cat_coll) := lapply(cat_coll, function(x) {
-    x <- get(x)
-    # Replace missing value with the value with the highest occurrence (mode)
-    x[is.na(x)] <- distinct_values[which.max(distinct_tabulate)]
 
-  })]
+
+my_mode <- function (x, na.rm) {
+  xtab <- table(x)
+  xmode <- names(which(xtab == max(xtab)))
+  if (length(xmode) > 1) xmode <- ">1 mode"
+  return(xmode)
 }
 
+for (cat_coll in cat_vars) {
+  genericdata <- as.data.frame(genericdata)
+  genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- my_mode(genericdata[,cat_coll], na.rm = TRUE)
+
+}
+
+#for (cat_coll in catcols){
+  #hy <- genericdata[,(catcols),with=FALSE]
+#genericdata[,(catcols),with=FALSE] <- impute_mode(genericdata[,(catcols),with=FALSE], type = "columnwise")
+#func <- impute_mode()
+#genericdata <- as.data.frame(genericdata)
+#genericdata <- genericdata[ , (catcols) := lapply(.SD, impute_mode)]  
+#genericdata[eval(catcols)] <- lapply(genericdata[eval(catcols)], impute_mode)
+
+#}
+
+
+# # Replace missing value with the value with the highest occurrence (mode)
+# distinct_values <- unique(setDT(genericdata)[,(catcols)])
+# # Count the occurrence of each distinct value
+# distinct_tabulate <- tabulate(match(catcols, distinct_values))
+#   
+#   
+#   for (cat_coll in catcols){
+# 
+# 
+# 
+#   genericdata <-  genericdata[, (cat_coll) := lapply(cat_coll, function(x) {
+#     x <- get(x)
+# 
+#     val <- unique(vec_miss[!is.na(vec_miss)])                   # Values in vec_miss
+#     my_mode <- val[which.max(tabulate(match(vec_miss, val)))] 
+#     
+#     x[x == "NA"] <- distinct_values[which.max(distinct_tabulate)]
+#     #x[x==""] <- distinct_values[which.max(distinct_tabulate)]
+# 
+#   })]
+# }
+
 return(list(genericdata,varr,predictor_fields))
+  #return(head(genericdata))
 }
 
 #head(preprocessing(genericdata = genericdata, dataschema = dataschema)[[1]])

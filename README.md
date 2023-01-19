@@ -123,7 +123,7 @@ docker compose exec -it logimodel ./serve
 Once the plumber API starts you can now open another terminal and paste the following: 
 
 ```
-curl localhost:8000/getprediction --header "Content-Type: application/json" \
+curl localhost:8000/infer --header "Content-Type: application/json" \
   --request POST \
   --data @/path/to/your/data/testjsn.json
 ```
