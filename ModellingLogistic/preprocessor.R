@@ -7,18 +7,11 @@ library(data.table) # Opted for this, 1. Because its really fast 2. dplyr confli
 library(rjson) # for handling json data
 library(missMethods)
 
-preprocessing <- function(){ 
+preprocessing <- function(fname_train,fname_schema,genericdata,dataschema){ 
   
-  # use pattern to read data : this is to make the model generic 
-  fname_train <- dir(path = "./../ml_vol/inputs/data/training/binaryClassificationBaseMainInput/", pattern = "\\_train.csv$")
-  fname_schema <- dir(path = "./../ml_vol/inputs/data_config/", pattern = "\\_schema.json$")
-  
-  # import the training data 
-  genericdata <- fread(paste0("./../ml_vol/inputs/data/training/binaryClassificationBaseMainInput/",fname_train))
+
   names(genericdata) <- gsub("%","x",names(genericdata))
-  # read in the schema so that we extract the response variable
-  dataschema <- fromJSON(file = paste0("./../ml_vol/inputs/data_config/",fname_schema))
-  
+
   # get the response variable and store it as a string to a variable
   varr <- dataschema$inputDatasets$binaryClassificationBaseMainInput$targetField
   # introducing na value to check if the pipeline is working fine. 
@@ -29,7 +22,7 @@ preprocessing <- function(){
 idfieldname <- dataschema$inputDatasets$binaryClassificationBaseMainInput$idField
 
 ## drop it from the data
-genericdata <- subset(genericdata,select = -c(eval(as.name(paste0(idfieldname)))))
+#genericdata <- subset(genericdata,select = -c(eval(as.name(paste0(idfieldname)))))
 
 # get the predictor fields from the dataschemaa. 
 predictor_fields <- data.frame(dataschema$inputDatasets$binaryClassificationBaseMainInput$predictorFields)
@@ -110,7 +103,7 @@ for (cat_coll in cat_vars) {
 # }
 
 return(list(genericdata,varr,predictor_fields))
-  #return(head(genericdata))
+  #return(head(predictor_fields))
 }
 
 #head(preprocessing(genericdata = genericdata, dataschema = dataschema)[[1]])
