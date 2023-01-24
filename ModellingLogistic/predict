@@ -39,18 +39,6 @@ reg_logistic <- readRDS("./../ml_vol/model/artifacts/model.rds")
 testing <- function()
 {
   df <- testdata_processed
-  #predicted <-  predict(reg_logistic, newdata=df, type="response")
-  #predicted <- data.table(predicted)
-  #names(predicted) <- "probabilities"
-  # where the probabilities returned are <0.5 put 0 otherwise 1.
-  #predicted <- predicted[, predictions:=0][probabilities>0.5, predictions:=1]
-
-  # add the ID colum to the predictions
-  #glm_pred = cbind(idField, predicted)
-  #rownames(glm_pred) <- NULL
-  #glm_pred <- dcast(glm_pred, idField ~ predictions, value.var = "probabilities")
-  #colnames(glm_pred)[2:3]<-paste("class",colnames(glm_pred)[2:3],sep="_")
-  #write.csv(glm_pred,"./../ml_vol/outputs/testing_outputs/testpredictions.csv")
   predictions <- predict(reg_logistic, newdata = df, type = "response")
   thepredictions <- cbind(df, predictions)
   names(thepredictions)[names(thepredictions)=="predictions"] <- "predictedprobs"
@@ -58,12 +46,9 @@ testing <- function()
   indvars <- as.vector(predictors$fieldNames)
   #thepredictions <- setDT(thepredictions)[, !indvars, with=FALSE]
   thepredictions <- setDT(thepredictions)[, c(eval(resvar),eval(idfieldname),"predictedprobs"), with=FALSE]
-  
-  
+
   #thepredictions <- dcast(thepredictions, eval(idfieldname) ~ eval(resvar), value.var = "predictedprobs")
-  
-  #
-  
+
   thepredictions <- tidyr::pivot_wider(thepredictions,names_from=all_of(resvar),values_from="predictedprobs")
   thepredictions <- setDT(thepredictions)[is.na(`1`),`1` := 1-`0`][is.na(`0`),`0` := 1-`1`]
   write.csv(thepredictions,"./../ml_vol/outputs/testing_outputs/testpredictions.csv")

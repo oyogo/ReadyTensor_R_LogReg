@@ -1,7 +1,9 @@
-# Automating Logistic Regression   
+# Data agnostic Logistic Regression with docker compose and Plumber API  
 
-* The idea is to have a logistic regression run in a container and save the model back to the attached folder.   
-* When running the container a volume needs to be attached which contains the csv files and the data schema.    
+* The idea of this project is to have a data agnostic logistic regression that trains, predicts and serves as a docker compose service.
+ So basically, the use just needs to attach the folder with the data with a binary response variable then run train script to train the model and save it as an artifact back to the attached volume, test the model to save the predictions as an output in the attached volume and run the serve script to run a plumber API which returns a json output of predictions. 
+ 
+* The volume to be attached contains the csv files and the data schema.    
 
 To try this locally on your pc see the steps below: 
 

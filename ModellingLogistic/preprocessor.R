@@ -5,7 +5,6 @@
 
 library(data.table) # Opted for this, 1. Because its really fast 2. dplyr conflicted with plumber
 library(rjson) # for handling json data
-library(missMethods)
 
 preprocessing <- function(fname_train,fname_schema,genericdata,dataschema){ 
   
@@ -68,6 +67,7 @@ for (cat_coll in cat_vars) {
   genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- my_mode(genericdata[,cat_coll], na.rm = TRUE)
 
 }
+
 
 #for (cat_coll in catcols){
   #hy <- genericdata[,(catcols),with=FALSE]

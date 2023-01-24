@@ -15,11 +15,11 @@ genericdata <- fread(paste0("./../ml_vol/inputs/data/training/binaryClassificati
 # call the preprocessing pipeline 
 source("preprocessor.R")
 
-#preprocessing(fname_train=fname_train,fname_schema=fname_schema,genericdata=genericdata)
 
 varr <- preprocessing(fname_train=fname_train,fname_schema=fname_schema,genericdata=genericdata,dataschema=dataschema)[[2]]
 training_data <- preprocessing(fname_train=fname_train,fname_schema=fname_schema,genericdata=genericdata,dataschema=dataschema)[[1]]
 predictors <- preprocessing(fname_train=fname_train,fname_schema=fname_schema,genericdata=genericdata,dataschema=dataschema)[[3]]
+
 
 # function to train the model  and save it back into the mounted volume
 lets_train <- function(dat,rvar,predictors){
