@@ -10,7 +10,8 @@ function(req) {
   
     df <- req$postBody
     parsed_df <- rjson::fromJSON(df)
-    dfr <-  as.data.frame(do.call(cbind, parsed_df))
+    #dfr <-  as.data.frame(do.call(cbind, parsed_df))
+    dfr <- data.table::rbindlist(parsed_df$instances)
     num_cols <- names(dfr)
     dfr <- setDT(dfr)[,(num_cols):= lapply(.SD, as.numeric), .SDcols = num_cols]
     
