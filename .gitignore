@@ -42,7 +42,7 @@ vignettes/*.pdf
 
 /data/
 /data_try/
-/ml_vol/
+/ml_inputs_outputs/
 
 *.DS_Store
 
