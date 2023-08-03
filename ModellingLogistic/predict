@@ -5,7 +5,7 @@ library(data.table)
 library(tidyr)
 
 fname_test <- dir(path = "./../ml_inputs_outputs/inputs/data/testing/", pattern = "\\_test_data_file.csv$")
-fname_testschema <- dir(path = "./../ml_inputs_outputs/inputs/schema/", pattern = "\\_schema.json$")
+fname_testschema <- dir(path = "./../ml_inputs_outputs/inputs/schema/", pattern = "\\_schema_file.json$")
 testdata <- fread(paste0("./../ml_inputs_outputs/inputs/data/testing/",fname_test))
 
 tdataschema <- fromJSON(file = paste0("./../ml_inputs_outputs/inputs/schema/",fname_testschema))
@@ -16,7 +16,8 @@ names(testdata) <- gsub("%","x",names(testdata))
 # select the ID column into a variable and drop it from the test data. 
 # the variable created will be bound to the predicted probabilities 
 
-idfieldname <- tdataschema$inputDatasets$binaryClassificationBaseMainInput$idField
+#idfieldname <- tdataschema$inputDatasets$binaryClassificationBaseMainInput$idField
+idfieldname <- tdataschema$id$name
 
 # save the idField into a vector. We'll bind this to the prediction dataframe to ensure the predictions are returned in the same order of
 # of the records in the original dataframe. 
@@ -35,6 +36,7 @@ testdata_processed <- preprocessing(fname_train=fname_test,fname_schema=fname_sc
 
 # load the trained model
 reg_logistic <- readRDS("./../ml_inputs_outputs/model/artifacts/model.rds")
+saveRDS(idfieldname, "./../ml_inputs_outputs/model/artifacts/id.rds")
 
 testing <- function()
 {
@@ -45,12 +47,11 @@ testing <- function()
   # names(thepredictions)[names(thepredictions) == 'V2'] <-  "predictedprobs"
   indvars <- as.vector(predictors$fieldNames)
   #thepredictions <- setDT(thepredictions)[, !indvars, with=FALSE]
-  thepredictions <- setDT(thepredictions)[, c(eval(resvar),eval(idfieldname),"predictedprobs"), with=FALSE]
-
-  #thepredictions <- dcast(thepredictions, eval(idfieldname) ~ eval(resvar), value.var = "predictedprobs")
-
-  thepredictions <- tidyr::pivot_wider(thepredictions,names_from=all_of(resvar),values_from="predictedprobs")
-  thepredictions <- setDT(thepredictions)[is.na(`1`),`1` := 1-`0`][is.na(`0`),`0` := 1-`1`]
+  thepredictions <- setDT(thepredictions)[, c(eval(idfieldname),"predictedprobs"), with=FALSE]
+  #thepredictions <- setDT(thepredictions)[, c(eval(resvar),"predictedprobs"), with=FALSE]
+  #head(thepredictions)
+  # thepredictions <- tidyr::pivot_wider(thepredictions,names_from=all_of(resvar),values_from="predictedprobs")
+  # thepredictions <- setDT(thepredictions)[is.na(`1`),`1` := 1-`0`][is.na(`0`),`0` := 1-`1`]
   write.csv(thepredictions,"./../ml_inputs_outputs/outputs/predictions/testpredictions.csv")
 
 }

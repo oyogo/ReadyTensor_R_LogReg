@@ -12,25 +12,28 @@ preprocessing <- function(fname_train,fname_schema,genericdata,dataschema){
   names(genericdata) <- gsub("%","x",names(genericdata))
 
   # get the response variable and store it as a string to a variable
-  varr <- dataschema$inputDatasets$binaryClassificationBaseMainInput$targetField
+  #varr <- dataschema$inputDatasets$binaryClassificationBaseMainInput$targetField
+  varr <- dataschema$target$name
   # introducing na value to check if the pipeline is working fine. 
   #genericdata <- genericdata[id==529,word_freq_make:="NA"] 
 
 # drop the id field 
 ## get the field name and store it as a variable
-idfieldname <- dataschema$inputDatasets$binaryClassificationBaseMainInput$idField
+#idfieldname <- dataschema$inputDatasets$binaryClassificationBaseMainInput$idField
+idfieldname <- dataschema$id$name
 
 ## drop it from the data
 #genericdata <- subset(genericdata,select = -c(eval(as.name(paste0(idfieldname)))))
 
 # get the predictor fields from the dataschemaa. 
-predictor_fields <- data.frame(dataschema$inputDatasets$binaryClassificationBaseMainInput$predictorFields)
-
+#predictor_fields <- data.frame(dataschema$inputDatasets$binaryClassificationBaseMainInput$predictorFields)
+predictor_fields <- data.frame(dataschema$features)
 # convert the dataframe to data.table for munging :- don't want to use dplyr
 predictor_fields <- setDT(predictor_fields)
 
 # melt the data.table into long format so as to filter numeric columns. 
-predictor_fields <- melt(predictor_fields,measure.vars=patterns(fieldNames="fieldName",dataTypes="dataType"))
+#predictor_fields <- melt(predictor_fields,measure.vars=patterns(fieldNames="fieldName",dataTypes="dataType"))
+predictor_fields <- melt(predictor_fields,measure.vars=patterns(fieldNames="name",dataTypes="dataType"))
 predictor_fields$fieldNames <- gsub("%", "x", predictor_fields$fieldNames)
 # filter the numeric columns 
 num_vars <- predictor_fields[dataTypes=="NUMERIC",.(fieldNames)]
@@ -103,7 +106,7 @@ for (cat_coll in cat_vars) {
 # }
 
 return(list(genericdata,varr,predictor_fields))
-  #return(head(predictor_fields))
+ 
 }
 
 #head(preprocessing(genericdata = genericdata, dataschema = dataschema)[[1]])
