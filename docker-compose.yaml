@@ -3,7 +3,7 @@ services:
   logmodel:
     build: .
     volumes:
-      - ./ml_inputs_outputs:/opt/ml_inputs_outputs
+      - ./model_inputs_outputs:/opt/model_inputs_outputs
     ports:
       - 8080:8080
     working_dir: /opt/ModellingLogistic

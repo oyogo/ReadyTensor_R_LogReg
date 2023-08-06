@@ -4,11 +4,11 @@ library(rjson)
 library(data.table)
 library(tidyr)
 
-fname_test <- dir(path = "./../ml_inputs_outputs/inputs/data/testing/", pattern = "\\_test_data_file.csv$")
-fname_testschema <- dir(path = "./../ml_inputs_outputs/inputs/schema/", pattern = "\\_schema_file.json$")
-testdata <- fread(paste0("./../ml_inputs_outputs/inputs/data/testing/",fname_test))
+fname_test <- dir(path = "./../model_inputs_outputs/inputs/data/testing/", pattern = "\\_test_data_file.csv$")
+fname_testschema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern = "\\_schema_file.json$")
+testdata <- fread(paste0("./../model_inputs_outputs/inputs/data/testing/",fname_test))
 
-tdataschema <- fromJSON(file = paste0("./../ml_inputs_outputs/inputs/schema/",fname_testschema))
+tdataschema <- fromJSON(file = paste0("./../model_inputs_outputs/inputs/schema/",fname_testschema))
 
 # some of the column names do not follow r-naming convention : they have special characters which must be changed
 names(testdata) <- gsub("%","x",names(testdata))
@@ -35,8 +35,8 @@ resvar <- preprocessing(fname_train=fname_test,fname_schema=fname_schema,generic
 testdata_processed <- preprocessing(fname_train=fname_test,fname_schema=fname_schema,genericdata=testdata,dataschema=tdataschema)[[1]]
 
 # load the trained model
-reg_logistic <- readRDS("./../ml_inputs_outputs/model/artifacts/model.rds")
-saveRDS(idfieldname, "./../ml_inputs_outputs/model/artifacts/id.rds")
+reg_logistic <- readRDS("./../model_inputs_outputs/model/artifacts/model.rds")
+saveRDS(idfieldname, "./../model_inputs_outputs/model/artifacts/id.rds")
 
 testing <- function()
 {
@@ -52,7 +52,7 @@ testing <- function()
   #head(thepredictions)
   # thepredictions <- tidyr::pivot_wider(thepredictions,names_from=all_of(resvar),values_from="predictedprobs")
   # thepredictions <- setDT(thepredictions)[is.na(`1`),`1` := 1-`0`][is.na(`0`),`0` := 1-`1`]
-  write.csv(thepredictions,"./../ml_inputs_outputs/outputs/predictions/testpredictions.csv")
+  write.csv(thepredictions,"./../model_inputs_outputs/outputs/predictions/testpredictions.csv")
 
 }
 

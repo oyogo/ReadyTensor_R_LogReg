@@ -3,15 +3,15 @@
 library(data.table) # Opted for this, 1. Because its really fast 2. dplyr conflicted with plumber
 library(rjson) # for handling json data
 # use pattern to read data : this is to make the model generic 
-fname_train <- dir(path = "./../ml_inputs_outputs/inputs/data/training/", pattern = "\\_data_file.csv$")
-fname_schema <- dir(path = "./../ml_inputs_outputs/inputs/schema/", pattern = "\\_file.json$")
+fname_train <- dir(path = "./../model_inputs_outputs/inputs/data/training/", pattern = "\\_data_file.csv$")
+fname_schema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern = "\\_file.json$")
 
 # read in the schema so that we extract the response variable
-#dataschema <- fromJSON(file = paste0("./../ml_inputs_outputs/inputs/schema/",fname_schema))
-dataschema <- fromJSON(file = "./ml_inputs_outputs/inputs/schema/schema_file.json")
+dataschema <- fromJSON(file = paste0("./../model_inputs_outputs/inputs/schema/",fname_schema))
+#dataschema <- fromJSON(file = "./../model_inputs_outputs/inputs/schema/schema_file.json")
 
 # import the training data 
-genericdata <- fread(paste0("./../ml_inputs_outputs/inputs/data/training/",fname_train))
+genericdata <- fread(paste0("./../model_inputs_outputs/inputs/data/training/",fname_train))
 
 # call the preprocessing pipeline 
 source("preprocessor.R")
@@ -35,7 +35,7 @@ lets_train <- function(dat,rvar,predictors){
   theModel <- glm(reformulate(termlabels = indvars, response = rvar),family=binomial(link='logit'), data = dat)
 
   # save the model into the artifacts folder in the attached volume.
-  saveRDS(theModel, "./../ml_inputs_outputs/model/artifacts/model.rds")
+  saveRDS(theModel, "./../model_inputs_outputs/model/artifacts/model.rds")
 
 }
 

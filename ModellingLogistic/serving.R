@@ -34,10 +34,10 @@ function(req) {
     df <- req$postBody
     parsed_df <- rjson::fromJSON(df)
     dfr <- data.table::rbindlist(parsed_df$instances)
-    model <- readr::read_rds("./../ml_inputs_outputs/model/artifacts/model.rds")
+    model <- readr::read_rds("./../model_inputs_outputs/model/artifacts/model.rds")
    # resvar <- readr::read_rds("./../ml_vol/model/artifacts/response_variable.rds")
     #thefeatures <- readr::read_rds("./../ml_vol/model/artifacts/features.rds")
-    id <- readr::read_rds("./../ml_inputs_outputs/model/artifacts/id.rds")
+    id <- readr::read_rds("./../model_inputs_outputs/model/artifacts/id.rds")
 
     newdf <- subset(dfr, select = -c(eval(as.name(paste0(id)))))
     
