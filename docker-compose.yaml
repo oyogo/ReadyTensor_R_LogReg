@@ -6,6 +6,6 @@ services:
       - ./ml_inputs_outputs:/opt/ml_inputs_outputs
     ports:
       - 8080:8080
-    working_dir: /opt/ModellingLogistic/
+    working_dir: ./opt/ModellingLogistic
     command: tail -f /dev/null # keep the container running
     
