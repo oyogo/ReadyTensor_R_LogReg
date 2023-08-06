@@ -26,7 +26,7 @@ RUN R -e "install.packages('tidyr', dependencies=T)"
 COPY ./ModellingLogistic /opt/ModellingLogistic
 WORKDIR /opt/ModellingLogistic
 
-ENV PATH="opt/ModellingLogistic:${PATH}"
+ENV PATH="/opt/ModellingLogistic:${PATH}"
 
 RUN chmod +x train &&\
     chmod +x predict &&\
