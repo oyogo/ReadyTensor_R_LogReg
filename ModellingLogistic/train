@@ -7,7 +7,7 @@ fname_train <- dir(path = "./../ml_inputs_outputs/inputs/data/training/", patter
 fname_schema <- dir(path = "./../ml_inputs_outputs/inputs/schema/", pattern = "\\_schema_file.json$")
 
 # read in the schema so that we extract the response variable
-dataschema <- fromJSON(file = paste0("./../ml_inputs_outputs/inputs/schema/",fname_schema))
+dataschema <- fromJSON(file = paste0("./ml_inputs_outputs/inputs/schema/",fname_schema))
 
 # import the training data 
 genericdata <- fread(paste0("./../ml_inputs_outputs/inputs/data/training/",fname_train))
