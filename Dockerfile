@@ -24,7 +24,6 @@ RUN R -e "install.packages('tidyr', dependencies=T)"
 #COPY testing.R /modellingLogistic/testing.R
 #COPY test /modellingLogistic/test
 COPY ./ModellingLogistic /opt/ModellingLogistic
-COPY ./ml_inputs_outputs /opt/ml_inputs_outputs
 WORKDIR /opt/ModellingLogistic
 
 ENV PATH="/opt/ModellingLogistic:${PATH}"
