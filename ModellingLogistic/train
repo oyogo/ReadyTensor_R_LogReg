@@ -12,7 +12,7 @@ fname_schema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern =
 
 # import the training data 
 #genericdata <- fread(paste0("./../model_inputs_outputs/inputs/data/training/",fname_train))
-genericdata <- fread("./../model_inputs_outputs/inputs/data/training/train_data_file.csv")
+genericdata <- fread("/opt/model_inputs_outputs/inputs/data/training/train_data_file.csv")
 # call the preprocessing pipeline 
 source("preprocessor.R")
 
