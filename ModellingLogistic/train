@@ -11,8 +11,8 @@ fname_schema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern =
 #dataschema <- fromJSON(file = "./../model_inputs_outputs/inputs/schema/schema_file.json")
 
 # import the training data 
-genericdata <- fread(paste0("./../model_inputs_outputs/inputs/data/training/",fname_train))
-
+#genericdata <- fread(paste0("./../model_inputs_outputs/inputs/data/training/",fname_train))
+genericdata <- fread("./../model_inputs_outputs/inputs/data/training/train_data_file.csv")
 # call the preprocessing pipeline 
 source("preprocessor.R")
 
