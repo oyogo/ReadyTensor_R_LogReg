@@ -4,8 +4,8 @@ library(rjson)
 library(data.table)
 library(tidyr)
 
-fname_test <- dir(path = "./../model_inputs_outputs/inputs/data/testing/", pattern = "\\_test_data_file.csv$")
-fname_testschema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern = "\\_schema_file.json$")
+fname_test <- dir(path = "./../model_inputs_outputs/inputs/data/testing/", pattern = "\\.csv$")
+fname_testschema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern = "\\.json$")
 testdata <- fread(paste0("./../model_inputs_outputs/inputs/data/testing/",fname_test))
 
 tdataschema <- fromJSON(file = paste0("./../model_inputs_outputs/inputs/schema/",fname_testschema))
