@@ -4,10 +4,10 @@ library(data.table) # Opted for this, 1. Because its really fast 2. dplyr confli
 library(rjson) # for handling json data
 # use pattern to read data : this is to make the model generic 
 fname_train <- dir(path = "./../model_inputs_outputs/inputs/data/training/", pattern = "\\.csv$")
-fname_schema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern = "\\_file.json$")
+fname_schema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern = "\\.json$")
 
 # read in the schema so that we extract the response variable
-#dataschema <- fromJSON(file = paste0("./../model_inputs_outputs/inputs/schema/",fname_schema))
+dataschema <- fromJSON(file = paste0("./../model_inputs_outputs/inputs/schema/",fname_schema))
 #dataschema <- fromJSON(file = "./../model_inputs_outputs/inputs/schema/schema_file.json")
 
 # import the training data 
