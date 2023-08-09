@@ -52,7 +52,7 @@ testing <- function()
   #head(thepredictions)
   # thepredictions <- tidyr::pivot_wider(thepredictions,names_from=all_of(resvar),values_from="predictedprobs")
   # thepredictions <- setDT(thepredictions)[is.na(`1`),`1` := 1-`0`][is.na(`0`),`0` := 1-`1`]
-  write.csv(thepredictions,"./../model_inputs_outputs/outputs/predictions/testpredictions.csv")
+  #write.csv(thepredictions,"./../model_inputs_outputs/outputs/predictions/testpredictions.csv")
 
 }
 
