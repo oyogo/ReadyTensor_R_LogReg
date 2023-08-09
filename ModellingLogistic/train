@@ -3,7 +3,7 @@
 library(data.table) # Opted for this, 1. Because its really fast 2. dplyr conflicted with plumber
 library(rjson) # for handling json data
 # use pattern to read data : this is to make the model generic 
-fname_train <- dir(path = "./../model_inputs_outputs/inputs/data/training/", pattern = "\\_data_file.csv$")
+fname_train <- dir(path = "./../model_inputs_outputs/inputs/data/training/", pattern = "\\.csv$")
 fname_schema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern = "\\_file.json$")
 
 # read in the schema so that we extract the response variable
@@ -11,11 +11,10 @@ fname_schema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern =
 #dataschema <- fromJSON(file = "./../model_inputs_outputs/inputs/schema/schema_file.json")
 
 # import the training data 
-#genericdata <- fread(paste0("./../model_inputs_outputs/inputs/data/training/",fname_train))
-genericdata <- fread("/opt/model_inputs_outputs/inputs/data/training/train_data_file.csv")
+genericdata <- fread(paste0("./../model_inputs_outputs/inputs/data/training/",fname_train))
+#genericdata <- fread("/opt/model_inputs_outputs/inputs/data/training/train_data_file.csv")
 # call the preprocessing pipeline 
 source("preprocessor.R")
-
 
 varr <- preprocessing(fname_train=fname_train,fname_schema=fname_schema,genericdata=genericdata,dataschema=dataschema)[[2]]
 training_data <- preprocessing(fname_train=fname_train,fname_schema=fname_schema,genericdata=genericdata,dataschema=dataschema)[[1]]
