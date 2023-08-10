@@ -4,8 +4,8 @@ library(rjson)
 library(data.table)
 library(tidyr)
 
-fname_test <- dir(path = "./../model_inputs_outputs/inputs/data/testing/", pattern = "\\.csv$")
-fname_testschema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern = "\\.json$")
+fname_test <- dir(path = "./../model_inputs_outputs/inputs/data/testing/", pattern = "\\_file.csv$")
+fname_testschema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern = "\\_file.json$")
 testdata <- fread(paste0("./../model_inputs_outputs/inputs/data/testing/",fname_test))
 
 tdataschema <- fromJSON(file = paste0("./../model_inputs_outputs/inputs/schema/",fname_testschema))
@@ -38,21 +38,28 @@ testdata_processed <- preprocessing(fname_train=fname_test,fname_schema=fname_sc
 reg_logistic <- readRDS("./../model_inputs_outputs/model/artifacts/model.rds")
 saveRDS(idfieldname, "./../model_inputs_outputs/model/artifacts/id.rds")
 
+first.class <- readRDS("./../model_inputs_outputs/model/artifacts/first_class.rds")
+second.class <- readRDS("./../model_inputs_outputs/model/artifacts/second_class.rds")
+
 testing <- function()
 {
   df <- testdata_processed
-  predictions <- predict(reg_logistic, newdata = df, type = "response")
+  predictions <- predict(reg_logistic,df, type="response")
   thepredictions <- cbind(df, predictions)
+  
   names(thepredictions)[names(thepredictions)=="predictions"] <- "predictedprobs"
   # names(thepredictions)[names(thepredictions) == 'V2'] <-  "predictedprobs"
-  indvars <- as.vector(predictors$fieldNames)
+  #indvars <- as.vector(predictors$fieldNames)
   #thepredictions <- setDT(thepredictions)[, !indvars, with=FALSE]
   thepredictions <- setDT(thepredictions)[, c(eval(idfieldname),"predictedprobs"), with=FALSE]
   #thepredictions <- setDT(thepredictions)[, c(eval(resvar),"predictedprobs"), with=FALSE]
-  #head(thepredictions)
-  # thepredictions <- tidyr::pivot_wider(thepredictions,names_from=all_of(resvar),values_from="predictedprobs")
+  #thepredictions <- setDT(thepredictions)[,predictedprobs := fifelse(predictedprobs < 0,0, predictedprobs)]
+  thepredictions <- setDT(thepredictions)[,predictions:=fifelse(predictedprobs < 0,eval(first.class), eval(second.class))]
+  testpredictions <- tidyr::pivot_wider(thepredictions,names_from="predictions",values_from="predictedprobs")
+  #head(testpredictions)
+  #thepredictions <- tidyr::pivot_wider(thepredictions,names_from=all_of(resvar),values_from="predictedprobs")
   # thepredictions <- setDT(thepredictions)[is.na(`1`),`1` := 1-`0`][is.na(`0`),`0` := 1-`1`]
-  write.csv(thepredictions,"./../model_inputs_outputs/outputs/predictions/predictions.csv")
+  write.csv(testpredictions,"./../model_inputs_outputs/outputs/predictions/predictions.csv")
 
 }
 

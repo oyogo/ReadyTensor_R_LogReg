@@ -22,6 +22,7 @@ preprocessing <- function(fname_train,fname_schema,genericdata,dataschema){
 #idfieldname <- dataschema$inputDatasets$binaryClassificationBaseMainInput$idField
 idfieldname <- dataschema$id$name
 
+
 ## drop it from the data
 #genericdata <- subset(genericdata,select = -c(eval(as.name(paste0(idfieldname)))))
 

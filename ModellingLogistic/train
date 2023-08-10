@@ -8,7 +8,7 @@ fname_schema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern =
 
 # read in the schema so that we extract the response variable
 dataschema <- fromJSON(file = paste0("./../model_inputs_outputs/inputs/schema/",fname_schema))
-#dataschema <- fromJSON(file = "./../model_inputs_outputs/inputs/schema/schema_file.json")
+#dataschema <- fromJSON(file = "./../model_inputs_outputs/inputs/schema/sample_schema_file.json")
 
 # import the training data 
 genericdata <- fread(paste0("./../model_inputs_outputs/inputs/data/training/",fname_train))
@@ -20,6 +20,11 @@ varr <- preprocessing(fname_train=fname_train,fname_schema=fname_schema,genericd
 training_data <- preprocessing(fname_train=fname_train,fname_schema=fname_schema,genericdata=genericdata,dataschema=dataschema)[[1]]
 predictors <- preprocessing(fname_train=fname_train,fname_schema=fname_schema,genericdata=genericdata,dataschema=dataschema)[[3]]
 
+first_class <- dataschema$target$classes[[1]]
+second_class <- dataschema$target$classes[[2]]
+
+saveRDS(first_class, "./../model_inputs_outputs/model/artifacts/first_class.rds")
+saveRDS(second_class, "./../model_inputs_outputs/model/artifacts/second_class.rds")
 
 # function to train the model  and save it back into the mounted volume
 lets_train <- function(dat,rvar,predictors){
