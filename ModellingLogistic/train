@@ -34,7 +34,7 @@ lets_train <- function(dat,rvar,predictors){
 
   # get the names of the independent variables and store them as a vector
   #indvars <- names(dat)
-  indvars <- predictors$fieldNames
+  indvars <- unique(predictors$fieldNames)
 
   # reformulate function from the base stats package was quite a savior in creating the from a character vector.
   # this will enable us to supply the response variable and the independent variables as characters and then reformulate will

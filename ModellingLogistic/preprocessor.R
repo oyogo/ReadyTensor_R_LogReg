@@ -9,7 +9,7 @@ library(rjson) # for handling json data
 preprocessing <- function(fname_train,fname_schema,genericdata,dataschema){ 
   
 
-  names(genericdata) <- gsub("%","x",names(genericdata))
+  #names(genericdata) <- gsub("%","x",names(genericdata))
 
   # get the response variable and store it as a string to a variable
   #varr <- dataschema$inputDatasets$binaryClassificationBaseMainInput$targetField
@@ -35,7 +35,7 @@ predictor_fields <- setDT(predictor_fields)
 # melt the data.table into long format so as to filter numeric columns. 
 #predictor_fields <- melt(predictor_fields,measure.vars=patterns(fieldNames="fieldName",dataTypes="dataType"))
 predictor_fields <- melt(predictor_fields,measure.vars=patterns(fieldNames="name",dataTypes="dataType"))
-predictor_fields$fieldNames <- gsub("%", "x", predictor_fields$fieldNames)
+#predictor_fields$fieldNames <- gsub("%", "x", predictor_fields$fieldNames)
 # filter the numeric columns 
 num_vars <- predictor_fields[dataTypes=="NUMERIC",.(fieldNames)]
 #num_vars$fieldNames <- gsub("%", "x", num_vars$fieldNames)
@@ -59,18 +59,19 @@ for (coll in v){
 
 
 
-# my_mode <- function (x, na.rm) {
-#   xtab <- table(x)
-#   xmode <- names(which(xtab == max(xtab)))
-#   if (length(xmode) > 1) xmode <- ">1 mode"
-#   return(xmode)
-# }
-# 
-# for (cat_coll in cat_vars) {
-#   genericdata <- as.data.frame(genericdata)
-#   genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- my_mode(genericdata[,cat_coll], na.rm = TRUE)
-# 
-# }
+my_mode <- function (x, na.rm) {
+  xtab <- table(x)
+  xmode <- names(which(xtab == max(xtab)))
+  if (length(xmode) > 1) xmode <- ">1 mode"
+  return(xmode)
+}
+
+for (cat_coll in cat_vars) {
+  genericdata <- as.data.frame(genericdata)
+  genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- my_mode(genericdata[,cat_coll], na.rm = TRUE)
+
+}
+
 
 
 #for (cat_coll in catcols){
