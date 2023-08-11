@@ -2,6 +2,7 @@
 
 library(data.table) # Opted for this, 1. Because its really fast 2. dplyr conflicted with plumber
 library(rjson) # for handling json data
+library(glue)
 # use pattern to read data : this is to make the model generic 
 fname_train <- dir(path = "./../model_inputs_outputs/inputs/data/training/", pattern = "\\.csv$")
 fname_schema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern = "\\.json$")
@@ -38,7 +39,7 @@ lets_train <- function(dat,rvar,predictors){
   # reformulate function from the base stats package was quite a savior in creating the from a character vector.
   # this will enable us to supply the response variable and the independent variables as characters and then reformulate will
   # evaluate them as variables.
-  theModel <- glm(reformulate(termlabels = indvars, response = rvar),family=binomial(link='logit'), data = dat)
+  theModel <- glm(reformulate(termlabels = indvars, response = glue({rvar})),family=binomial(link='logit'), data = dat)
 
   # save the model into the artifacts folder in the attached volume.
   saveRDS(theModel, "./../model_inputs_outputs/model/artifacts/model.rds")
