@@ -61,6 +61,26 @@ testing <- function()
   thepredictions <- setDT(thepredictions)[,c("predictions",eval(idfieldname),"predictedprobs"),with=FALSE]
   
   testpredictions <- tidyr::pivot_wider(thepredictions,names_from="predictions",values_from="predictedprobs")
+  
+  testpredictions <- as.data.frame(testpredictions)
+  
+  testpredictions[] <- lapply(testpredictions, function(x) {
+    is.na(levels(x)) <- levels(x) == "NA"
+    x
+  }) 
+  
+  for(i in 1:nrow(testpredictions)){
+    if(is.na(testpredictions[i,2])){
+      testpredictions[i,2] <- 1 - testpredictions[i,3]
+    }
+  }
+  
+  for(i in 1:nrow(testpredictions)){
+    if(is.na(testpredictions[i,3])){
+      testpredictions[i,3] <- 1 - testpredictions[i,2]
+    }
+  }
+  
   #testpredictions <- dcast(thepredictions,sample_id ~ predictions,value.var = "predictedprobs")
   #print(thepredictions)
   #thepredictions <- tidyr::pivot_wider(thepredictions,names_from=all_of(resvar),values_from="predictedprobs")
