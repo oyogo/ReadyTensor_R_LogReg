@@ -54,10 +54,9 @@ testing <- function()
   thepredictions <- setDT(thepredictions)[, c(eval(idfieldname),"predictedprobs"), with=FALSE]
 
   #thepredictions <- setDT(thepredictions)[, c(eval(resvar),"predictedprobs"), with=FALSE]
-  #thepredictions <- setDT(thepredictions)[,predictedprobs := fifelse(predictedprobs < 0,0, predictedprobs)]
-  thepredictions <- setDT(thepredictions)[,predictions:=fifelse(predictedprobs < 0.5,eval(second.class),eval(first.class)),by=eval(idfieldname)]
+  thepredictions <- setDT(thepredictions)[,predictedprobs := fifelse(predictedprobs < 0,0, predictedprobs)]
+  thepredictions <- thepredictions[,predictions:=fifelse(predictedprobs < 0.5,eval(second.class),eval(first.class)),by=eval(idfieldname)]
 
-  
   thepredictions <- setDT(thepredictions)[,c("predictions",eval(idfieldname),"predictedprobs"),with=FALSE]
   
   testpredictions <- tidyr::pivot_wider(thepredictions,names_from="predictions",values_from="predictedprobs")
