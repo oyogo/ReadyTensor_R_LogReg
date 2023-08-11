@@ -52,16 +52,23 @@ testing <- function()
   #indvars <- as.vector(predictors$fieldNames)
   #thepredictions <- setDT(thepredictions)[, !indvars, with=FALSE]
   thepredictions <- setDT(thepredictions)[, c(eval(idfieldname),"predictedprobs"), with=FALSE]
+
   #thepredictions <- setDT(thepredictions)[, c(eval(resvar),"predictedprobs"), with=FALSE]
   #thepredictions <- setDT(thepredictions)[,predictedprobs := fifelse(predictedprobs < 0,0, predictedprobs)]
-  thepredictions <- setDT(thepredictions)[,predictions:=fifelse(predictedprobs < 0,eval(second.class),eval(first.class)),by=eval(idfieldname)]
+  thepredictions <- setDT(thepredictions)[,predictions:=fifelse(predictedprobs < 0.5,eval(second.class),eval(first.class)),by=eval(idfieldname)]
+
+  
+  thepredictions <- setDT(thepredictions)[,c("predictions",eval(idfieldname),"predictedprobs"),with=FALSE]
   
   testpredictions <- tidyr::pivot_wider(thepredictions,names_from="predictions",values_from="predictedprobs")
   #testpredictions <- dcast(thepredictions,sample_id ~ predictions,value.var = "predictedprobs")
   #print(thepredictions)
   #thepredictions <- tidyr::pivot_wider(thepredictions,names_from=all_of(resvar),values_from="predictedprobs")
-  # thepredictions <- setDT(thepredictions)[is.na(`1`),`1` := 1-`0`][is.na(`0`),`0` := 1-`1`]
-  write.csv(thepredictions,"./../model_inputs_outputs/outputs/predictions/predictions.csv")
+  # thepredictions <- setDT(thepredictions)[is.na(eval(second.class)),
+  #                                         eval(second.class) := 1-!!as.name(paste0(first.class))][is.na(eval(first.class)),
+  #                                                                                               eval(first.class) := 1-!!as.name(paste0(second.class))]
+  
+  write.csv(testpredictions,"./../model_inputs_outputs/outputs/predictions/predictions.csv")
 
 }
 
