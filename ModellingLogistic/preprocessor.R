@@ -59,18 +59,18 @@ for (coll in v){
 
 
 
-my_mode <- function (x, na.rm) {
-  xtab <- table(x)
-  xmode <- names(which(xtab == max(xtab)))
-  if (length(xmode) > 1) xmode <- ">1 mode"
-  return(xmode)
-}
-
-for (cat_coll in cat_vars) {
-  genericdata <- as.data.frame(genericdata)
-  genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- my_mode(genericdata[,cat_coll], na.rm = TRUE)
-
-}
+# my_mode <- function (x, na.rm) {
+#   xtab <- table(x)
+#   xmode <- names(which(xtab == max(xtab)))
+#   if (length(xmode) > 1) xmode <- ">1 mode"
+#   return(xmode)
+# }
+# 
+# for (cat_coll in cat_vars) {
+#   genericdata <- as.data.frame(genericdata)
+#   genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- my_mode(genericdata[,cat_coll], na.rm = TRUE)
+# 
+# }
 
 
 #for (cat_coll in catcols){
