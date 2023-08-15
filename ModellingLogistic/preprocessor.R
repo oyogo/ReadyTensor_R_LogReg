@@ -64,7 +64,7 @@ my_mode <- function (x, na.rm) {
   return(xmode)
 }
 
-for (cat_coll in cat_vars) {
+for (cat_coll in catcols) {
   genericdata <- as.data.frame(genericdata)
   genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- my_mode(genericdata[,cat_coll], na.rm = TRUE)
 
@@ -87,18 +87,16 @@ for (cat_coll in cat_vars) {
 # distinct_values <- unique(setDT(genericdata)[,(catcols)])
 # # Count the occurrence of each distinct value
 # distinct_tabulate <- tabulate(match(catcols, distinct_values))
-#   
-#   
+# 
+# 
 #   for (cat_coll in catcols){
-# 
-# 
 # 
 #   genericdata <-  genericdata[, (cat_coll) := lapply(cat_coll, function(x) {
 #     x <- get(x)
 # 
 #     val <- unique(vec_miss[!is.na(vec_miss)])                   # Values in vec_miss
-#     my_mode <- val[which.max(tabulate(match(vec_miss, val)))] 
-#     
+#     my_mode <- val[which.max(tabulate(match(vec_miss, val)))]
+# 
 #     x[x == "NA"] <- distinct_values[which.max(distinct_tabulate)]
 #     #x[x==""] <- distinct_values[which.max(distinct_tabulate)]
 # 
