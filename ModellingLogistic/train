@@ -36,10 +36,11 @@ lets_train <- function(dat,rvar,predictors){
   #indvars <- names(dat)
   indvars <- unique(predictors$fieldNames)
   indvars <- gsub("\\s","_",indvars)
+  dat <- dat[, eval(rvar):=as.factor(eval(rvar))]
   # reformulate function from the base stats package was quite a savior in creating the from a character vector.
   # this will enable us to supply the response variable and the independent variables as characters and then reformulate will
   # evaluate them as variables.
-  theModel <- glm(reformulate(termlabels = indvars, response = as.factor(glue({rvar}))),family=binomial(link='logit'), data = dat)
+  theModel <- glm(reformulate(termlabels = indvars, response = glue({rvar})),family=binomial(link='logit'), data = dat)
   # form = reformulate(indvars, response = glue({rvar}))
   # theModel <- glm(form, data = dat)
 
