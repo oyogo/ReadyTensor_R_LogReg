@@ -47,28 +47,28 @@ catcols <- as.vector(cat_vars$fieldNames)
 v <- num_vars$fieldNames
 
 # # loop through the numeric columns and replace na values with mean of the same column in which the na appears.
-# for (coll in v){
-# 
-#  genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
-#     x <- get(x)
-#     x[is.na(x)] <- mean(x, na.rm = TRUE)
-#     x
-#   })]
-# 
-# }
-# 
-# my_mode <- function (x, na.rm) {
-#   xtab <- table(x)
-#   xmode <- names(which(xtab == max(xtab)))
-#   if (length(xmode) > 1) xmode <- ">1 mode"
-#   return(xmode)
-# }
-# 
-# for (cat_coll in cat_vars) {
-#   genericdata <- as.data.frame(genericdata)
-#   genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- my_mode(genericdata[,cat_coll], na.rm = TRUE)
-# 
-# }
+for (coll in v){
+
+ genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
+    x <- get(x)
+    x[is.na(x)] <- mean(x, na.rm = TRUE)
+    x
+  })]
+
+}
+
+my_mode <- function (x, na.rm) {
+  xtab <- table(x)
+  xmode <- names(which(xtab == max(xtab)))
+  if (length(xmode) > 1) xmode <- ">1 mode"
+  return(xmode)
+}
+
+for (cat_coll in cat_vars) {
+  genericdata <- as.data.frame(genericdata)
+  genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- my_mode(genericdata[,cat_coll], na.rm = TRUE)
+
+}
 
 
 
