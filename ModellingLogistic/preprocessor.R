@@ -70,7 +70,7 @@ for (cat_coll in catcols) {
 
 }
 
-
+names(genericdata) <- make.names(names(genericdata))
 
 #for (cat_coll in catcols){
   #hy <- genericdata[,(catcols),with=FALSE]
