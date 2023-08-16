@@ -36,7 +36,10 @@ lets_train <- function(dat,rvar,predictors){
   #indvars <- names(dat)
   indvars <- unique(predictors$fieldNames)
   indvars <- gsub("\\s","_",indvars)
-  dat <- dat[, eval(rvar):=as.factor(eval(rvar))]
+  #dat <- setDT(dat)[, eval(rvar):=as.factor(as.character(eval(rvar)))]
+  dat <- as.data.table(dat)
+  dat[, eval(rvar)] <- lapply(dat[, eval(rvar), with = FALSE], factor)
+  #dat[, eval(rvar)] <- dat[, lapply(.SD, factor), .SDcols=glue({rvar})]
   # reformulate function from the base stats package was quite a savior in creating the from a character vector.
   # this will enable us to supply the response variable and the independent variables as characters and then reformulate will
   # evaluate them as variables.
