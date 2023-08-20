@@ -53,8 +53,11 @@ my_mode <- function (x, na.rm) {
   if (length(xmode) > 1) xmode <- ">1 mode"
   return(xmode)
 }
+
 # # loop through the numeric columns and replace na values with mean of the same column in which the na appears.
 for (coll in v){
+  
+   genericdata <- genericdata[, coll:=as.numeric(coll)]
 
 if(any(coll > 0)){
  genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
