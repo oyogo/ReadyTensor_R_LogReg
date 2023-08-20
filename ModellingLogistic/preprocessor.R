@@ -56,19 +56,19 @@ my_mode <- function (x, na.rm) {
 # # loop through the numeric columns and replace na values with mean of the same column in which the na appears.
 for (coll in v){
 
-# if(any(coll > 0)){ 
-#  genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
-#     x <- get(x)
-#     x <- as.numeric(x)
-#     x[is.na(x)] <- mean(x, na.rm = TRUE)
-#     x
-#   })]
-# } else{
+if(any(coll > 0)){
+ genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
+    x <- get(x)
+    suppressWarnings(x <- as.numeric(x))
+    x[is.na(x)] <- mean(x, na.rm = TRUE)
+    x
+  })]
+} else{
    
   genericdata <- as.data.frame(genericdata)
   genericdata[is.na(genericdata[,coll]),coll] <- my_mode(genericdata[,coll], na.rm = TRUE)
   
- #}
+ }
 }
 
 
