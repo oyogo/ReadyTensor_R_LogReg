@@ -59,7 +59,7 @@ Mode <- function(x) {
   ux[which.max(tabulate(match(x, ux)))]
 }
 
-# genericdata <- as.data.frame(genericdata)
+ genericdata <- as.data.frame(genericdata)
 # genericdata[v] <- sapply(genericdata[v],as.numeric)
 
 # # loop through the numeric columns and replace na values with mean of the same column in which the na appears.
