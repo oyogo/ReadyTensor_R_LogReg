@@ -73,12 +73,12 @@ if(isTRUE(genericdata[,coll]) && genericdata[,coll] > 0){
  genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
     x <- get(x)
     suppressWarnings(x <- as.numeric(x))
-    x[is.na(x)] <- mean(x, na.rm = TRUE)
+    x[is.na(x)] <- mean(x)
     x
   })]
 } else{
    
-  genericdata <- as.data.frame(genericdata)
+  #genericdata <- as.data.frame(genericdata)
   genericdata[is.na(genericdata[,coll]),coll] <- Mode(genericdata[,coll])
   
  }
@@ -87,7 +87,7 @@ if(isTRUE(genericdata[,coll]) && genericdata[,coll] > 0){
 
 # for categorical variables impute with mode
 for (cat_coll in catcols) {
-  genericdata <- as.data.frame(genericdata)
+  #genericdata <- as.data.frame(genericdata)
   genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- Mode(genericdata[,cat_coll])
 
 }
