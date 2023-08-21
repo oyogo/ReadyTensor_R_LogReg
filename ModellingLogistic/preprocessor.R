@@ -69,7 +69,7 @@ for (coll in v){
    
 #genericdata <- data.table(genericdata)
 
-if(isTRUE(genericdata[,get(coll)]) && genericdata[,get(coll)] > 0){
+if(isTRUE(genericdata[,coll]) && genericdata[,coll] > 0){
  genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
     x <- get(x)
     suppressWarnings(x <- as.numeric(x))
