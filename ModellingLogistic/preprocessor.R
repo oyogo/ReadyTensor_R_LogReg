@@ -54,8 +54,8 @@ my_mode <- function (x, na.rm) {
   return(xmode)
 }
 
-genericdata <- as.data.frame(genericdata)
-genericdata[v] <- sapply(genericdata[v],as.numeric)
+# genericdata <- as.data.frame(genericdata)
+# genericdata[v] <- sapply(genericdata[v],as.numeric)
 
 # # loop through the numeric columns and replace na values with mean of the same column in which the na appears.
 for (coll in v){
@@ -63,7 +63,7 @@ for (coll in v){
    #genericdata <- genericdata[, glue({coll}):=as.numeric(glue({coll}))]
    
 
-if(any(coll > 0)){
+if(any(genericdata[,coll] > 0)){
  genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
     x <- get(x)
     suppressWarnings(x <- as.numeric(x))
