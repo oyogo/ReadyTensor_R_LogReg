@@ -44,6 +44,7 @@ num_vars <- predictor_fields[dataTypes %like% "NUMERIC",.(fieldNames)]
 cat_vars <- predictor_fields[dataTypes %like% "CATEGORICAL",.(fieldNames)]
 
 catcols <- as.vector(cat_vars$fieldNames)
+
 v <- as.vector(num_vars$fieldNames)
 
 # function for imputing with mode
@@ -64,7 +65,7 @@ for (coll in v){
    
 #genericdata <- data.table(genericdata)
 
-if(any(genericdata[,coll] > 0)){
+if(any(genericdata[,get(coll)] > 0)){
  genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
     x <- get(x)
     suppressWarnings(x <- as.numeric(x))
