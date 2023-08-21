@@ -44,7 +44,7 @@ num_vars <- predictor_fields[dataTypes %like% "NUMERIC",.(fieldNames)]
 cat_vars <- predictor_fields[dataTypes %like% "CATEGORICAL",.(fieldNames)]
 
 catcols <- as.vector(cat_vars$fieldNames)
-v <- num_vars$fieldNames
+v <- as.vector(num_vars$fieldNames)
 
 # function for imputing with mode
 my_mode <- function (x, na.rm) {
@@ -62,6 +62,7 @@ for (coll in v){
   
    #genericdata <- genericdata[, glue({coll}):=as.numeric(glue({coll}))]
    
+#genericdata <- data.table(genericdata)
 
 if(any(genericdata[,coll] > 0)){
  genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
