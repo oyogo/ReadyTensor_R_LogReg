@@ -48,11 +48,15 @@ catcols <- as.vector(cat_vars$fieldNames)
 v <- as.vector(num_vars$fieldNames)
 
 # function for imputing with mode
-my_mode <- function (x, na.rm) {
-  xtab <- table(x)
-  xmode <- names(which(xtab == max(xtab)))
-  if (length(xmode) > 1) xmode <- ">1 mode"
-  return(xmode)
+# my_mode <- function (x, na.rm) {
+#   xtab <- table(x)
+#   xmode <- names(which(xtab == max(xtab)))
+#   if (length(xmode) > 1) xmode <- ">1 mode"
+#   return(xmode)
+# }
+Mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
 }
 
 # genericdata <- as.data.frame(genericdata)
@@ -65,7 +69,7 @@ for (coll in v){
    
 #genericdata <- data.table(genericdata)
 
-if(any(genericdata[,get(coll)] > 0)){
+if(isTRUE(genericdata[,get(coll)]) && genericdata[,get(coll)] > 0){
  genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
     x <- get(x)
     suppressWarnings(x <- as.numeric(x))
@@ -75,7 +79,7 @@ if(any(genericdata[,get(coll)] > 0)){
 } else{
    
   genericdata <- as.data.frame(genericdata)
-  genericdata[is.na(genericdata[,coll]),coll] <- my_mode(genericdata[,coll], na.rm = TRUE)
+  genericdata[is.na(genericdata[,coll]),coll] <- Mode(genericdata[,coll])
   
  }
 }
@@ -84,7 +88,7 @@ if(any(genericdata[,get(coll)] > 0)){
 # for categorical variables impute with mode
 for (cat_coll in catcols) {
   genericdata <- as.data.frame(genericdata)
-  genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- my_mode(genericdata[,cat_coll], na.rm = TRUE)
+  genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- Mode(genericdata[,cat_coll])
 
 }
 
