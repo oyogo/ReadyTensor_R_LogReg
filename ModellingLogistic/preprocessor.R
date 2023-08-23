@@ -69,13 +69,17 @@ for (coll in v){
    
 #genericdata <- data.table(genericdata)
 
-if(isTRUE(genericdata[,coll]) && genericdata[,coll] > 0){
- genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
-    x <- get(x)
-    suppressWarnings(x <- as.numeric(x))
-    x[is.na(x)] <- mean(x)
-    x
-  })]
+if(isTRUE(genericdata[,coll]) && genericdata[,coll] >= 0){
+  
+ # genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
+ #    x <- get(x)
+ #    suppressWarnings(x <- as.numeric(x))
+ #    x[is.na(x)] <- mean(x, na.rm=TRUE)
+ #    x
+ #  })]
+  
+  genericdata[ , coll][is.na(genericdata[ , coll])] <- mean(genericdata[ , coll], na.rm = TRUE)
+ 
 } else{
    
   #genericdata <- as.data.frame(genericdata)
