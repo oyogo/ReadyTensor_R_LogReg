@@ -59,7 +59,7 @@ Mode <- function(x) {
   ux[which.max(tabulate(match(x, ux)))]
 }
 
- genericdata <- as.data.frame(genericdata)
+ #genericdata <- as.data.frame(genericdata)
 # genericdata[v] <- sapply(genericdata[v],as.numeric)
 
 # # loop through the numeric columns and replace na values with mean of the same column in which the na appears.
@@ -91,12 +91,12 @@ if(isTRUE(genericdata[,coll]) && genericdata[,coll] >= 0){
 
 # for categorical variables impute with mode
 for (cat_coll in catcols) {
-  genericdata <- as.data.frame(genericdata)
+  #genericdata <- as.data.frame(genericdata)
   genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- Mode(genericdata[,cat_coll])
   
 }
 
-genericdata <- as.data.frame(genericdata)
+#genericdata <- as.data.frame(genericdata)
 #if there's any space in the column names replace with underscore
 names(genericdata) <- gsub("\\s","_",names(genericdata))
 
