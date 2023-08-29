@@ -69,7 +69,8 @@ for (coll in v){
    
 #genericdata <- data.table(genericdata)
 
-if(isTRUE(genericdata[,coll]) && genericdata[,coll] >= 0){
+  #isTRUE(genericdata[,coll]) && 
+if(genericdata[,coll] >= 0){
   
  # genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
  #    x <- get(x)
