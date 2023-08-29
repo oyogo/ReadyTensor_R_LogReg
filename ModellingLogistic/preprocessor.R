@@ -59,7 +59,7 @@ Mode <- function(x) {
   ux[which.max(tabulate(match(x, ux)))]
 }
 
- genericdata <- as.data.frame(genericdata)
+ #genericdata <- as.data.frame(genericdata)
 # genericdata[v] <- sapply(genericdata[v],as.numeric)
 
 # # loop through the numeric columns and replace na values with mean of the same column in which the na appears.
@@ -70,7 +70,7 @@ for (coll in v){
 #genericdata <- data.table(genericdata)
 
   #isTRUE(genericdata[,coll]) && 
-if(isTRUE(genericdata[,eval(coll)]) && genericdata[,eval(coll)] >= 0){
+if(isTRUE(genericdata[,coll]) && genericdata[,coll] >= 0){
   
  # genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
  #    x <- get(x)
