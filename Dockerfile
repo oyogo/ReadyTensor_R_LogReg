@@ -15,6 +15,8 @@ RUN R -e "install.packages('rjson', dependencies=T)"
 RUN R -e "install.packages('plumber', dependencies=T)"
 RUN R -e "install.packages('jsonlite', dependencies=T)"
 RUN R -e "install.packages('tidyr', dependencies=T)"
+RUN R -e "install.packages('fastDummies', dependencies=T)"
+RUN R -e "install.packages('dplyr', dependencies=T)"
 
 #RUN mkdir -p ~/modellingLogistic
 #WORKDIR /modellingLogistic/
