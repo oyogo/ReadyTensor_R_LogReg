@@ -5,6 +5,8 @@
 
 library(data.table) # Opted for this, 1. Because its really fast 2. dplyr conflicted with plumber
 library(rjson) # for handling json data
+library(fastDummies)
+library(dplyr)
 
 preprocessing <- function(fname_train,fname_schema,genericdata,dataschema){ 
   
@@ -42,95 +44,39 @@ num_vars <- predictor_fields[dataTypes %like% "NUMERIC",.(fieldNames)]
 
 # categorical variables
 cat_vars <- predictor_fields[dataTypes %like% "CATEGORICAL",.(fieldNames)]
+features <- dataschema$features
+
+numeric_features <- features$name[features$dataType == "NUMERIC"]
+categorical_features <- features$name[features$dataType == "CATEGORICAL"]
 
 catcols <- as.vector(cat_vars$fieldNames)
 
 v <- as.vector(num_vars$fieldNames)
+MODEL_ARTIFACTS_PATH <- "./../model_inputs_outputs/model/artifacts/"
+OHE_ENCODER_FILE <- file.path(MODEL_ARTIFACTS_PATH, 'ohe.rds')
 
-# function for imputing with mode
-# my_mode <- function (x, na.rm) {
-#   xtab <- table(x)
-#   xmode <- names(which(xtab == max(xtab)))
-#   if (length(xmode) > 1) xmode <- ">1 mode"
-#   return(xmode)
-# }
-Mode <- function(x) {
-  ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
+genericdata <- as.data.frame(genericdata)
+
+# One Hot Encoding
+if(length(categorical_features) > 0){
+  top_3_map <- list()
+  for(col in categorical_features) {
+    # Get the top 3 categories for the column
+    top_3_categories <- names(sort(table(genericdata[[col]]), decreasing = TRUE)[1:3])
+    
+    # Save the top 3 categories for this column
+    top_3_map[[col]] <- top_3_categories
+    # Replace categories outside the top 3 with "Other"
+    genericdata[[col]][!(genericdata[[col]] %in% top_3_categories)] <- "Other"
+  }
+  
+  genericdata <- dummy_cols(genericdata, select_columns = categorical_features, remove_selected_columns = TRUE)
+  encoded_columns <- setdiff(colnames(genericdata), colnames(genericdata))
+  saveRDS(encoded_columns, OHE_ENCODER_FILE)
+  #saveRDS(top_3_map, TOP_3_CATEGORIES_MAP)
+  genericdata <- genericdata
 }
 
- genericdata <- as.data.frame(genericdata)
-# genericdata[v] <- sapply(genericdata[v],as.numeric)
-
-# # loop through the numeric columns and replace na values with mean of the same column in which the na appears.
-for (coll in v){
-  
-   #genericdata <- genericdata[, glue({coll}):=as.numeric(glue({coll}))]
-   
-#genericdata <- data.table(genericdata)
-
-  #isTRUE(genericdata[,coll]) && 
-if(isTRUE(genericdata[,coll]) && genericdata[,coll] >= 0){
-  
- # genericdata <-  genericdata[, (coll) := lapply(coll, function(x) {
- #    x <- get(x)
- #    suppressWarnings(x <- as.numeric(x))
- #    x[is.na(x)] <- mean(x, na.rm=TRUE)
- #    x
- #  })]
-  genericdata <- as.data.frame(genericdata)
-  genericdata[ ,coll][is.na(genericdata[ ,coll])] <- mean(genericdata[,coll], na.rm = TRUE)
- 
-} else{
-   
-  genericdata <- as.data.frame(genericdata)
-  genericdata[is.na(genericdata[,coll]),coll] <- Mode(genericdata[,coll])
-  
- }
-}
-
-
-# for categorical variables impute with mode
-for (cat_coll in catcols) {
-  #genericdata <- as.data.frame(genericdata)
-  genericdata[is.na(genericdata[,cat_coll]),cat_coll] <- Mode(genericdata[,cat_coll])
-  
-}
-
-#genericdata <- as.data.frame(genericdata)
-#if there's any space in the column names replace with underscore
-names(genericdata) <- gsub("\\s","_",names(genericdata))
-
-#for (cat_coll in catcols){
-  #hy <- genericdata[,(catcols),with=FALSE]
-#genericdata[,(catcols),with=FALSE] <- impute_mode(genericdata[,(catcols),with=FALSE], type = "columnwise")
-#func <- impute_mode()
-#genericdata <- as.data.frame(genericdata)
-#genericdata <- genericdata[ , (catcols) := lapply(.SD, impute_mode)]  
-#genericdata[eval(catcols)] <- lapply(genericdata[eval(catcols)], impute_mode)
-
-#}
-
-
-# # Replace missing value with the value with the highest occurrence (mode)
-# distinct_values <- unique(setDT(genericdata)[,(catcols)])
-# # Count the occurrence of each distinct value
-# distinct_tabulate <- tabulate(match(catcols, distinct_values))
-# 
-# 
-#   for (cat_coll in catcols){
-# 
-#   genericdata <-  genericdata[, (cat_coll) := lapply(cat_coll, function(x) {
-#     x <- get(x)
-# 
-#     val <- unique(vec_miss[!is.na(vec_miss)])                   # Values in vec_miss
-#     my_mode <- val[which.max(tabulate(match(vec_miss, val)))]
-# 
-#     x[x == "NA"] <- distinct_values[which.max(distinct_tabulate)]
-#     #x[x==""] <- distinct_values[which.max(distinct_tabulate)]
-# 
-#   })]
-# }
 
 return(list(genericdata,varr,predictor_fields))
  
