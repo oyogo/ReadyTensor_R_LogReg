@@ -55,7 +55,7 @@ for (column in names(df.test)[sapply(df.test, function(col) any(is.na(col)))]) {
 }
 
 # Saving the id column in a different variable and then dropping it.
-ids <- df.test[,glue({id_feature})]
+ids <- df.test[[id_feature]]
 df.test[[id_feature]] <- NULL
 
 # Encoding
