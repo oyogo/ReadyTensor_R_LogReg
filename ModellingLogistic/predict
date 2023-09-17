@@ -1,10 +1,15 @@
 #!/usr/bin/env Rscript
 
-library(rjson)
-library(data.table)
+library(jsonlite)
+library(dplyr)
 library(tidyr)
+library(caret)
+library(readr)
+library(data.table)
+library(fastDummies)
+library(nnet)
 
-source("preprocessor.R")
+#source("preprocessor.R")
 
 # Paths
 ROOT_DIR <- dirname(getwd())
