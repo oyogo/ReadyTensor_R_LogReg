@@ -4,92 +4,160 @@ library(rjson)
 library(data.table)
 library(tidyr)
 
-fname_test <- dir(path = "./../model_inputs_outputs/inputs/data/testing/", pattern = "\\.csv$")
-fname_testschema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern = "\\.json$")
-testdata <- fread(paste0("./../model_inputs_outputs/inputs/data/testing/",fname_test))
-
-tdataschema <- fromJSON(file = paste0("./../model_inputs_outputs/inputs/schema/",fname_testschema))
-
-# some of the column names do not follow r-naming convention : they have special characters which must be changed
-names(testdata) <- gsub("%","x",names(testdata))
-
-# select the ID column into a variable and drop it from the test data. 
-# the variable created will be bound to the predicted probabilities 
-
-#idfieldname <- tdataschema$inputDatasets$binaryClassificationBaseMainInput$idField
-idfieldname <- tdataschema$id$name
-
-# save the idField into a vector. We'll bind this to the prediction dataframe to ensure the predictions are returned in the same order of
-# of the records in the original dataframe. 
-# idfieldname <- as.symbol(idfieldname)
-# idField <- testdata[,c(eval(idfieldname))]
-
-# drop the ID column from the dataset, we don't need it for testing. 
-#testdata <- subset(testdata,select = -c(eval(as.name(paste0(idfieldname)))))
-
 source("preprocessor.R")
-#preprocessing()
 
-predictors <- preprocessing(fname_train=fname_test,fname_schema=fname_schema,genericdata=testdata,dataschema=tdataschema)[[3]]
-resvar <- preprocessing(fname_train=fname_test,fname_schema=fname_schema,genericdata=testdata,dataschema=tdataschema)[[2]]
-testdata_processed <- preprocessing(fname_train=fname_test,fname_schema=fname_schema,genericdata=testdata,dataschema=tdataschema)[[1]]
+# Paths
+ROOT_DIR <- dirname(getwd())
+MODEL_INPUTS_OUTPUTS <- file.path(ROOT_DIR, 'model_inputs_outputs')
+INPUT_DIR <- file.path(MODEL_INPUTS_OUTPUTS, "inputs")
+OUTPUT_DIR <- file.path(MODEL_INPUTS_OUTPUTS, "outputs")
+INPUT_SCHEMA_DIR <- file.path(INPUT_DIR, "schema")
+DATA_DIR <- file.path(INPUT_DIR, "data")
+TEST_DIR <- file.path(DATA_DIR, "testing")
+MODEL_PATH <- file.path(MODEL_INPUTS_OUTPUTS, "model")
+MODEL_ARTIFACTS_PATH <- file.path(MODEL_PATH, "artifacts")
+OHE_ENCODER_FILE <- file.path(MODEL_ARTIFACTS_PATH, 'ohe.rds')
+PREDICTOR_DIR_PATH <- file.path(MODEL_ARTIFACTS_PATH, "predictor")
+PREDICTOR_FILE_PATH <- file.path(PREDICTOR_DIR_PATH, "predictor.rds")
+IMPUTATION_FILE <- file.path(MODEL_ARTIFACTS_PATH, 'imputation.rds')
+PREDICTIONS_DIR <- file.path(OUTPUT_DIR, 'predictions')
+PREDICTIONS_FILE <- file.path(PREDICTIONS_DIR, 'predictions.csv')
+LABEL_ENCODER_FILE <- file.path(MODEL_ARTIFACTS_PATH, 'label_encoder.rds')
+ENCODED_TARGET_FILE <- file.path(MODEL_ARTIFACTS_PATH, "encoded_target.rds")
+TOP_3_CATEGORIES_MAP <- file.path(MODEL_ARTIFACTS_PATH, "top_3_map.rds")
 
-# load the trained model
-reg_logistic <- readRDS("./../model_inputs_outputs/model/artifacts/model.rds")
-saveRDS(idfieldname, "./../model_inputs_outputs/model/artifacts/id.rds")
 
-first.class <- readRDS("./../model_inputs_outputs/model/artifacts/first_class.rds")
-second.class <- readRDS("./../model_inputs_outputs/model/artifacts/second_class.rds")
+# Reading test data.
+file_name <- list.files(TEST_DIR, pattern = "*.csv", full.names = TRUE)[1]
+# Read the first line to get column names
+header_line <- readLines(file_name, n = 1)
+col_names <- unlist(strsplit(header_line, split = ",")) # assuming ',' is the delimiter
+# Read the CSV with the exact column names
+df.test <- read.csv(file_name, skip = 0, col.names = col_names, check.names=FALSE)
 
-testing <- function()
-{
-  df <- testdata_processed
-  predictions <- predict(reg_logistic,df, type="response")
-  thepredictions <- cbind(df, predictions)
-  
-  names(thepredictions)[names(thepredictions)=="predictions"] <- "predictedprobs"
-  # names(thepredictions)[names(thepredictions) == 'V2'] <-  "predictedprobs"
-  #indvars <- as.vector(predictors$fieldNames)
-  #thepredictions <- setDT(thepredictions)[, !indvars, with=FALSE]
-  thepredictions <- setDT(thepredictions)[, c(eval(idfieldname),"predictedprobs"), with=FALSE]
+# Reading the schema
+file_name <- list.files(INPUT_SCHEMA_DIR, pattern = "*.json")[1]
+schema <- fromJSON(file.path(INPUT_SCHEMA_DIR, file_name))
+features <- schema$features
+id_feature <- schema$id$name
+#id_feature <- readRDS('/home/clinton/Documents/ReadyTensor_R_LogReg/model_inputs_outputs/model/artifacts/id.rds')
 
-  #thepredictions <- setDT(thepredictions)[, c(eval(resvar),"predictedprobs"), with=FALSE]
-  thepredictions <- setDT(thepredictions)[,predictedprobs := fifelse(predictedprobs < 0,0, predictedprobs)]
-  thepredictions <- setDT(thepredictions)[,predictedprobs := fifelse(predictedprobs > 1,1, predictedprobs)]
-  thepredictions <- thepredictions[,predictions:=fifelse(predictedprobs < 0.5,eval(second.class),eval(first.class)),by=eval(idfieldname)]
-  thepredictions  <- na.omit(thepredictions)
-  thepredictions <- setDT(thepredictions)[,c("predictions",eval(idfieldname),"predictedprobs"),with=FALSE]
-  
-  testpredictions <- tidyr::pivot_wider(thepredictions,names_from="predictions",values_from="predictedprobs")
-  
-  testpredictions <- as.data.frame(testpredictions)
-  
-  testpredictions[] <- lapply(testpredictions, function(x) {
-    is.na(levels(x)) <- levels(x) == "NA"
-    x
-  }) 
-  
-  for(i in 1:nrow(testpredictions)){
-    if(is.na(testpredictions[i,2])){
-      testpredictions[i,2] <- 1 - testpredictions[i,3]
-    }
-  }
-  
-  for(i in 1:nrow(testpredictions)){
-    if(is.na(testpredictions[i,3])){
-      testpredictions[i,3] <- 1 - testpredictions[i,2]
-    }
-  }
-  
-  #testpredictions <- dcast(thepredictions,sample_id ~ predictions,value.var = "predictedprobs")
-  #print(thepredictions)
-  #thepredictions <- tidyr::pivot_wider(thepredictions,names_from=all_of(resvar),values_from="predictedprobs")
-  # thepredictions <- setDT(thepredictions)[is.na(eval(second.class)),
-  #                                         eval(second.class) := 1-!!as.name(paste0(first.class))][is.na(eval(first.class)),
-  #                                                                                               eval(first.class) := 1-!!as.name(paste0(second.class))]
-  
-  write.csv(testpredictions,"./../model_inputs_outputs/outputs/predictions/predictions.csv")
-
+# Data preprocessing
+# Note that when we work with testing data, we have to impute using the same values learned during training. This is to avoid data leakage.
+imputation_values <- readRDS(IMPUTATION_FILE)
+for (column in names(df.test)[sapply(df.test, function(col) any(is.na(col)))]) {
+  df.test[, column][is.na(df.test[, column])] <- imputation_values[[column]]
 }
 
-testing()
+# Saving the id column in a different variable and then dropping it.
+ids <- df.test[,glue({id_feature})]
+df.test[[id_feature]] <- NULL
+
+# Encoding
+# We encode the data using the same encoder that we saved during training.
+if (length(categorical_features) > 0 && file.exists(OHE_ENCODER_FILE)) {
+  top_3_map <- readRDS(TOP_3_CATEGORIES_MAP)
+  encoder <- readRDS(OHE_ENCODER_FILE)
+  for(col in categorical_features) {
+    # Use the saved top 3 categories to replace values outside these categories with 'Other'
+    df.test[[col]][!(df.test[[col]] %in% top_3_map[[col]])] <- "Other"
+  }
+  
+  test_df.test_encoded <- dummy_cols(df.test, select_columns = categorical_features, remove_selected_columns = TRUE)
+  encoded_columns <- readRDS(OHE_ENCODER_FILE)
+  # Add missing columns with 0s
+  for (col in encoded_columns) {
+    if (!col %in% colnames(test_df.test_encoded)) {
+      test_df.test_encoded[[col]] <- 0
+    }
+  }
+  
+  # Remove extra columns
+  extra_cols <- setdiff(colnames(test_df.test_encoded), c(colnames(df.test), encoded_columns))
+  df.test <- test_df.test_encoded[, !names(test_df.test_encoded) %in% extra_cols]
+}
+
+
+type <- ifelse(model_category == "binary_classification", "response", "probs")
+
+head(df.test)
+# Making predictions
+model <- readRDS(PREDICTOR_FILE_PATH)
+predictions <- predict(model, newdata = df.test, type = type)
+head(predictions)
+
+# Getting the original labels
+encoder <- readRDS(LABEL_ENCODER_FILE)
+target <- readRDS(ENCODED_TARGET_FILE)
+class_names <- encoder[target + 1]
+unique_classes <- unique(class_names)
+unique_classes <- sort(unique_classes)
+
+
+if (model_category == 'binary_classification'){
+  Prediction1 <- predictions
+  Prediction2 <- 1 - Prediction1
+  predictions_df <- data.frame(Prediction2 = Prediction2, Prediction1 = Prediction1)
+  
+} else{
+  predictions_df <- predictions
+}
+
+colnames(predictions_df) <- unique_classes
+predictions_df <- ids %>% bind_cols(predictions_df) %>% as.data.frame()
+#colnames(predictions_df)[1] <- id_feature
+write.csv(predictions_df, PREDICTIONS_FILE, row.names = FALSE)
+
+
+# testing <- function()
+# {
+#   df.test <- testdata_processed
+#   predictions <- predict(reg_logistic,df.test, type="response")
+#   thepredictions <- cbind(df.test, predictions)
+#   
+#   names(thepredictions)[names(thepredictions)=="predictions"] <- "predictedprobs"
+#   # names(thepredictions)[names(thepredictions) == 'V2'] <-  "predictedprobs"
+#   #indvars <- as.vector(predictors$fieldNames)
+#   #thepredictions <- setDT(thepredictions)[, !indvars, with=FALSE]
+#   thepredictions <- setDT(thepredictions)[, c(eval(idf.testieldname),"predictedprobs"), with=FALSE]
+# 
+#   #thepredictions <- setDT(thepredictions)[, c(eval(resvar),"predictedprobs"), with=FALSE]
+#   thepredictions <- setDT(thepredictions)[,predictedprobs := fifelse(predictedprobs < 0,0, predictedprobs)]
+#   thepredictions <- setDT(thepredictions)[,predictedprobs := fifelse(predictedprobs > 1,1, predictedprobs)]
+#   thepredictions <- thepredictions[,predictions:=fifelse(predictedprobs < 0.5,eval(second.class),eval(first.class)),by=eval(idf.testieldname)]
+#   thepredictions  <- na.omit(thepredictions)
+#   thepredictions <- setDT(thepredictions)[,c("predictions",eval(idf.testieldname),"predictedprobs"),with=FALSE]
+#   
+#   testpredictions <- tidyr::pivot_wider(thepredictions,names_from="predictions",values_from="predictedprobs")
+#   
+#   testpredictions <- as.data.frame(testpredictions)
+#   
+#   testpredictions[] <- lapply(testpredictions, function(x) {
+#     is.na(levels(x)) <- levels(x) == "NA"
+#     x
+#   }) 
+#   
+#   for(i in 1:nrow(testpredictions)){
+#     if(is.na(testpredictions[i,2])){
+#       testpredictions[i,2] <- 1 - testpredictions[i,3]
+#     }
+#   }
+#   
+#   for(i in 1:nrow(testpredictions)){
+#     if(is.na(testpredictions[i,3])){
+#       testpredictions[i,3] <- 1 - testpredictions[i,2]
+#     }
+#   }
+#   
+#   #testpredictions <- dcast(thepredictions,sample_id ~ predictions,value.var = "predictedprobs")
+#   #print(thepredictions)
+#   #thepredictions <- tidyr::pivot_wider(thepredictions,names_from=all_of(resvar),values_from="predictedprobs")
+#   # thepredictions <- setDT(thepredictions)[is.na(eval(second.class)),
+#   #                                         eval(second.class) := 1-!!as.name(paste0(first.class))][is.na(eval(first.class)),
+#   #                                                                                               eval(first.class) := 1-!!as.name(paste0(second.class))]
+#   
+#   write.csv(testpredictions,"./../model_inputs_outputs/outputs/predictions/predictions.csv")
+# 
+# }
+# 
+# testing()

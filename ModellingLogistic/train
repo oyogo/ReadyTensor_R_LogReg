@@ -3,56 +3,23 @@
 library(data.table) # Opted for this, 1. Because its really fast 2. dplyr conflicted with plumber
 library(rjson) # for handling json data
 library(glue)
-# use pattern to read data : this is to make the model generic 
-fname_train <- dir(path = "./../model_inputs_outputs/inputs/data/training/", pattern = "\\.csv$")
-fname_schema <- dir(path = "./../model_inputs_outputs/inputs/schema/", pattern = "\\.json$")
 
-# read in the schema so that we extract the response variable
-dataschema <- fromJSON(file = paste0("./../model_inputs_outputs/inputs/schema/",fname_schema))
-#fname_schema <- list.files(path="./../model_inputs_outputs/inputs/schema/", pattern=".json", full.names=TRUE)
-
-#dataschema <- fromJSON(file = paste0(fname_schema))
-
-# import the training data 
-genericdata <- read.csv(paste0("./../model_inputs_outputs/inputs/data/training/",fname_train))
-#genericdata <- fread("/opt/model_inputs_outputs/inputs/data/training/train_data_file.csv")
 # call the preprocessing pipeline 
 source("preprocessor.R")
 
-varr <- preprocessing(fname_train=fname_train,fname_schema=fname_schema,genericdata=genericdata,dataschema=dataschema)[[2]]
-training_data <- preprocessing(fname_train=fname_train,fname_schema=fname_schema,genericdata=genericdata,dataschema=dataschema)[[1]]
-predictors <- preprocessing(fname_train=fname_train,fname_schema=fname_schema,genericdata=genericdata,dataschema=dataschema)[[3]]
-
-first_class <- dataschema$target$classes[[1]]
-second_class <- dataschema$target$classes[[2]]
-
-saveRDS(first_class, "./../model_inputs_outputs/model/artifacts/first_class.rds")
-saveRDS(second_class, "./../model_inputs_outputs/model/artifacts/second_class.rds")
+encoded_target <- readRDS("./../model_inputs_outputs/model/artifacts/encoded_target.rds")
+df <- preprocessing()
 
 # function to train the model  and save it back into the mounted volume
-lets_train <- function(dat,rvar,predictors){
+#lets_train <- function(df,encoded_target){
 
-  # get the names of the independent variables and store them as a vector
-  #indvars <- names(dat)
-  indvars <- unique(predictors$fieldNames)
-  indvars <- gsub("\\s","_",indvars)
-  #dat <- setDT(dat)[, eval(rvar):=as.factor(as.character(eval(rvar)))]
-  dat <- as.data.table(dat)
-  dat[, eval(rvar)] <- lapply(dat[, eval(rvar), with = FALSE], factor)
-  #values_count <- sapply(lapply(dat, unique), length)
-  #dat[, eval(rvar)] <- dat[, lapply(.SD, factor), .SDcols=glue({rvar})]
-  # reformulate function from the base stats package was quite a savior in creating the from a character vector.
-  # this will enable us to supply the response variable and the independent variables as characters and then reformulate will
-  # evaluate them as variables.
-  theModel <- glm(reformulate(termlabels = indvars, response = glue({rvar})),family=binomial(link='logit'), data = dat)
-  # form = reformulate(indvars, response = glue({rvar}))
-  # theModel <- glm(form, data = dat)
+  theModel <- glm(encoded_target ~ ., family = binomial(link = "logit"), data = df)
 
   # save the model into the artifacts folder in the attached volume.
-  saveRDS(theModel, "./../model_inputs_outputs/model/artifacts/model.rds")
+  saveRDS(theModel, "./../model_inputs_outputs/model/artifacts/predictor.rds")
 
-}
+#}
 
 # calling the model
-glmModel <- lets_train(dat=training_data, rvar = varr, predictors = predictors)
+#glmModel <- lets_train(df=df, encoded_target = encoded_target)
 
