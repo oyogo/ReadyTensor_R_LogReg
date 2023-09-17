@@ -73,24 +73,23 @@ if (length(categorical_features) > 0 && file.exists(OHE_ENCODER_FILE)) {
     df.test[[col]][!(df.test[[col]] %in% top_3_map[[col]])] <- "Other"
   }
   
-  test_df.test_encoded <- dummy_cols(df.test, select_columns = categorical_features, remove_selected_columns = TRUE)
+  test_df_encoded <- dummy_cols(df.test, select_columns = categorical_features, remove_selected_columns = TRUE)
   encoded_columns <- readRDS(OHE_ENCODER_FILE)
   # Add missing columns with 0s
   for (col in encoded_columns) {
-    if (!col %in% colnames(test_df.test_encoded)) {
-      test_df.test_encoded[[col]] <- 0
+    if (!col %in% colnames(test_df_encoded)) {
+      test_df_encoded[[col]] <- 0
     }
   }
   
   # Remove extra columns
-  extra_cols <- setdiff(colnames(test_df.test_encoded), c(colnames(df.test), encoded_columns))
-  df.test <- test_df.test_encoded[, !names(test_df.test_encoded) %in% extra_cols]
+  extra_cols <- setdiff(colnames(test_df_encoded), c(colnames(df.test), encoded_columns))
+  df.test <- test_df_encoded[, !names(test_df_encoded) %in% extra_cols]
 }
 
 
 type <- ifelse(model_category == "binary_classification", "response", "probs")
 
-head(df.test)
 # Making predictions
 model <- readRDS(PREDICTOR_FILE_PATH)
 predictions <- predict(model, newdata = df.test, type = type)
@@ -114,7 +113,7 @@ if (model_category == 'binary_classification'){
 }
 
 colnames(predictions_df) <- unique_classes
-predictions_df <- ids %>% bind_cols(predictions_df) %>% as.data.frame()
+predictions_df <- tibble(ids = ids) %>% bind_cols(predictions_df)
 #colnames(predictions_df)[1] <- id_feature
 write.csv(predictions_df, PREDICTIONS_FILE, row.names = FALSE)
 
