@@ -17,6 +17,8 @@ RUN R -e "install.packages('jsonlite', dependencies=T)"
 RUN R -e "install.packages('tidyr', dependencies=T)"
 RUN R -e "install.packages('fastDummies', dependencies=T)"
 RUN R -e "install.packages('dplyr', dependencies=T)"
+RUN R -e "install.packages('caret', dependencies=T)"
+RUN R -e "install.packages('nnet', dependencies=T)"
 
 #RUN mkdir -p ~/modellingLogistic
 #WORKDIR /modellingLogistic/
