@@ -45,6 +45,11 @@ file_name <- list.files(INPUT_SCHEMA_DIR, pattern = "*.json")[1]
 schema <- fromJSON(file.path(INPUT_SCHEMA_DIR, file_name))
 features <- schema$features
 id_feature <- schema$id$name
+
+numeric_features <- features$name[features$dataType == "NUMERIC"]
+categorical_features <- features$name[features$dataType == "CATEGORICAL"]
+target_feature <- schema$target$name
+model_category <- schema$modelCategory
 #id_feature <- readRDS('/home/clinton/Documents/ReadyTensor_R_LogReg/model_inputs_outputs/model/artifacts/id.rds')
 
 # Data preprocessing
