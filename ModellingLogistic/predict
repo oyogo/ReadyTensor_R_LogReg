@@ -9,6 +9,8 @@ library(data.table)
 library(fastDummies)
 library(nnet)
 
+#source("preprocessor.R")
+
 # Paths
 ROOT_DIR <- dirname(getwd())
 MODEL_INPUTS_OUTPUTS <- file.path(ROOT_DIR, 'model_inputs_outputs')
@@ -28,7 +30,7 @@ PREDICTIONS_FILE <- file.path(PREDICTIONS_DIR, 'predictions.csv')
 LABEL_ENCODER_FILE <- file.path(MODEL_ARTIFACTS_PATH, 'label_encoder.rds')
 ENCODED_TARGET_FILE <- file.path(MODEL_ARTIFACTS_PATH, "encoded_target.rds")
 TOP_3_CATEGORIES_MAP <- file.path(MODEL_ARTIFACTS_PATH, "top_3_map.rds")
-TEST_ID <- file.path(MODEL_ARTIFACTS_PATH, 'test_id.rds')
+
 
 # Reading test data.
 file_name <- list.files(TEST_DIR, pattern = "*.csv", full.names = TRUE)[1]
@@ -49,16 +51,49 @@ categorical_features <- features$name[features$dataType == "CATEGORICAL"]
 target_feature <- schema$target$name
 model_category <- schema$modelCategory
 
+# Data preprocessing
+# Note that when we work with testing data, we have to impute using the same values learned during training. This is to avoid data leakage.
+
+# imputation_values <- readRDS(IMPUTATION_FILE)
+# for (column in names(df.test)[sapply(df.test, function(col) any(is.na(col)))]) {
+#   df.test[, column][is.na(df.test[, column])] <- imputation_values[[column]]
+# }
 source('preprocessor.R')
-df.tst <- preprocessing(df.tn=0,df.test=df.test)
+df.test <- preprocessing(df.tn=0,df.test=df.test)
+
+# Saving the id column in a different variable and then dropping it.
+ids <- df.test[[id_feature]]
+df.test[[id_feature]] <- NULL
+
+# Encoding
+# We encode the data using the same encoder that we saved during training.
+if (length(categorical_features) > 0 && file.exists(OHE_ENCODER_FILE)) {
+  top_3_map <- readRDS(TOP_3_CATEGORIES_MAP)
+  encoder <- readRDS(OHE_ENCODER_FILE)
+  for(col in categorical_features) {
+    # Use the saved top 3 categories to replace values outside these categories with 'Other'
+    df.test[[col]][!(df.test[[col]] %in% top_3_map[[col]])] <- "Other"
+  }
+  
+  test_df_encoded <- dummy_cols(df.test, select_columns = categorical_features, remove_selected_columns = TRUE)
+  encoded_columns <- readRDS(OHE_ENCODER_FILE)
+  # Add missing columns with 0s
+  for (col in encoded_columns) {
+    if (!col %in% colnames(test_df_encoded)) {
+      test_df_encoded[[col]] <- 0
+    }
+  }
+  
+  # Remove extra columns
+  extra_cols <- setdiff(colnames(test_df_encoded), c(colnames(df.test), encoded_columns))
+  df.test <- test_df_encoded[, !names(test_df_encoded) %in% extra_cols]
+}
 
 type <- ifelse(model_category == "binary_classification", "response", "probs")
 
-# Get the saved ID variable
-ids <- readRDS(TEST_ID)
 # Making predictions
 model <- readRDS(PREDICTOR_FILE_PATH)
-predictions <- predict(model, newdata = df.tst, type = type)
+predictions <- predict(model, newdata = df.test, type = type)
 
 # Getting the original labels
 encoder <- readRDS(LABEL_ENCODER_FILE)
