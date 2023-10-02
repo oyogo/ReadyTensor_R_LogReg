@@ -50,7 +50,7 @@ target_feature <- schema$target$name
 model_category <- schema$modelCategory
 
 source('preprocessor.R')
-df.test <- preprocessing(df.tn=0,df.test=df.test)
+df.tst <- preprocessing(df.tn=0,df.test=df.test)
 
 type <- ifelse(model_category == "binary_classification", "response", "probs")
 
@@ -58,7 +58,7 @@ type <- ifelse(model_category == "binary_classification", "response", "probs")
 ids <- readRDS(TEST_ID)
 # Making predictions
 model <- readRDS(PREDICTOR_FILE_PATH)
-predictions <- predict(model, newdata = df.test, type = type)
+predictions <- predict(model, newdata = df.tst, type = type)
 
 # Getting the original labels
 encoder <- readRDS(LABEL_ENCODER_FILE)

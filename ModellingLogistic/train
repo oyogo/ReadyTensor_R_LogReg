@@ -84,7 +84,7 @@ df <- read.csv(file.path(TRAIN_DIR, file_name), skip = 1, col.names = col_names,
 
 source('preprocessor.R')
 
-df <- preprocessing(df.tn=df,df.test=0)
+df.tn <- preprocessing(df.tn=df,df.test=0)
 
 # The id column is just an identifier for the training example, so we will exclude it during the encoding phase.
 # Target feature will be label encoded in the next step.
@@ -92,7 +92,7 @@ df <- preprocessing(df.tn=df,df.test=0)
 encoded_target <- readRDS(ENCODED_TARGET_FILE)
 
 # fit the model 
-theModel <- glm(encoded_target ~ ., family = binomial(link = "logit"), data = df)
+theModel <- glm(encoded_target ~ ., family = binomial(link = "logit"), data = df.tn)
 
 # save the model into the artifacts folder in the attached volume.
 saveRDS(theModel, PREDICTOR_FILE_PATH)
