@@ -14,8 +14,8 @@ MODEL_ARTIFACTS_PATH <- file.path(MODEL_INPUTS_OUTPUTS, "model", "artifacts")
 IMPUTATION_FILE <- file.path(MODEL_ARTIFACTS_PATH, 'imputation.rds')
 OHE_ENCODER_FILE <- file.path(MODEL_ARTIFACTS_PATH, 'ohe.rds')
 
-preprocessing <- function(df.tn,df.test){ 
-  if(df.test==0){
+preprocessing <- function(df.tn){ 
+
     imputation_values <- list()
     columns_with_missing_values <- colnames(df.tn)[apply(df.tn, 2, anyNA)]
     
@@ -65,16 +65,6 @@ preprocessing <- function(df.tn,df.test){
     saveRDS(encoded_target, ENCODED_TARGET_FILE)
     
     return(df)
-  } else{
-    
-    imputation_values <- readRDS(IMPUTATION_FILE)
-    for (column in names(df.test)[sapply(df.test, function(col) any(is.na(col)))]) {
-      df.test[, column][is.na(df.test[, column])] <- imputation_values[[column]]
-    }
-    return(df.test)
-    
-  }
   
 }
 
-#head(preprocessing(genericdata = genericdata, dataschema = dataschema)[[1]])

@@ -58,8 +58,14 @@ model_category <- schema$modelCategory
 # for (column in names(df.test)[sapply(df.test, function(col) any(is.na(col)))]) {
 #   df.test[, column][is.na(df.test[, column])] <- imputation_values[[column]]
 # }
-source('preprocessor.R')
-df.test <- preprocessing(df.tn=0,df.test=df.test)
+#source('preprocessor.R')
+#df.test <- preprocessing(df.tn=0,df.test=df.test)
+
+imputation_values <- readRDS(IMPUTATION_FILE)
+for (column in names(df.test)[sapply(df.test, function(col) any(is.na(col)))]) {
+  df.test[, column][is.na(df.test[, column])] <- imputation_values[[column]]
+}
+
 
 # Saving the id column in a different variable and then dropping it.
 ids <- df.test[[id_feature]]
