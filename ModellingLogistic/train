@@ -82,17 +82,65 @@ df <- read.csv(file.path(TRAIN_DIR, file_name), skip = 1, col.names = col_names,
 # alternatively anything needed during the testing phase should be learned from the training phase.
 # This is why we are creating a dictionary of values used during training to reuse these values during testing.
 
-source('preprocessor.R')
+#source('preprocessor.R')
 
-df.tn <- preprocessing(df.tn=df)
+#df.tn <- preprocessing(df.tn=df)
+
+imputation_values <- list()
+columns_with_missing_values <- colnames(df)[apply(df, 2, anyNA)]
+
+for (column in columns_with_missing_values) {
+  if (column %in% numeric_features) {
+    value <- median(df[, column], na.rm = TRUE)
+  } else {
+    value <- df[, column] %>% tidyr::replace_na()
+    value <- value[1]
+  }
+  df[, column][is.na(df[, column])] <- value
+  imputation_values[column] <- value
+  
+}
+
+saveRDS(imputation_values, IMPUTATION_FILE)
+
+ids <- df[, id_feature]
+target <- df[, target_feature]
+df <- df %>% select(-all_of(c(id_feature, target_feature)))
+
+
+# One Hot Encoding
+if(length(categorical_features) > 0){
+  top_3_map <- list()
+  for(col in categorical_features) {
+    # Get the top 3 categories for the column
+    top_3_categories <- names(sort(table(df[[col]]), decreasing = TRUE)[1:3])
+    
+    # Save the top 3 categories for this column
+    top_3_map[[col]] <- top_3_categories
+    # Replace categories outside the top 3 with "Other"
+    df[[col]][!(df[[col]] %in% top_3_categories)] <- "Other"
+  }
+  
+  df_encoded <- dummy_cols(df, select_columns = categorical_features, remove_selected_columns = TRUE)
+  encoded_columns <- setdiff(colnames(df_encoded), colnames(df))
+  saveRDS(encoded_columns, OHE_ENCODER_FILE)
+  saveRDS(top_3_map, TOP_3_CATEGORIES_MAP)
+  df <- df_encoded
+}
+
+# Label encoding target feature
+levels_target <- levels(factor(target))
+encoded_target <- as.integer(factor(target, levels = levels_target)) - 1
+saveRDS(levels_target, LABEL_ENCODER_FILE)
+saveRDS(encoded_target, ENCODED_TARGET_FILE)
 
 # The id column is just an identifier for the training example, so we will exclude it during the encoding phase.
 # Target feature will be label encoded in the next step.
 
-encoded_target <- readRDS(ENCODED_TARGET_FILE)
+#encoded_target <- readRDS(ENCODED_TARGET_FILE)
 
 # fit the model 
-theModel <- glm(encoded_target ~ ., family = binomial(link = "logit"), data = df.tn)
+theModel <- glm(encoded_target ~ ., family = binomial(link = "logit"), data = df)
 
 # save the model into the artifacts folder in the attached volume.
 saveRDS(theModel, PREDICTOR_FILE_PATH)
